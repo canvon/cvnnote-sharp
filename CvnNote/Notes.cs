@@ -20,7 +20,7 @@ namespace CvnNote
 	{
 		public class Day : INotesElement
 		{
-			public class Intro
+			public class Intro : INotesElement
 			{
 				// TODO: Store as DateTime
 				public string Date {
@@ -41,10 +41,23 @@ namespace CvnNote
 					// TODO: Convert to DateTime
 					Date = lines[0];
 				}
+
+
+				public string PassiveSummary {
+					get {
+						return string.Format("Date {0}", Date);
+					}
+				}
+
+				public IList<INotesElement> Children {
+					get {
+						return null;
+					}
+				}
 			}
 
 
-			public class Entry
+			public class Entry : INotesElement
 			{
 				public string TypeInformation {
 					get;
@@ -62,6 +75,22 @@ namespace CvnNote
 
 					TypeInformation = lines[0];
 					// TODO: Process rest of data somehow.
+				}
+
+
+				public string PassiveSummary {
+					get {
+						// TODO: Something like: return string.Format("Entry with {0} lines", lines.Count);
+						return string.Format("Type information {0}", TypeInformation);
+					}
+				}
+
+				public IList<INotesElement> Children {
+					get {
+						var ret = new List<INotesElement>();
+						// FIXME: Return actual children.
+						return ret;
+					}
 				}
 			}
 
@@ -99,8 +128,8 @@ namespace CvnNote
 			public IList<INotesElement> Children {
 				get {
 					var ret = new List<INotesElement>();
-					// FIXME: ret.Add(DayIntro);
-					// FIXME: ret.AddRange(DayEntries);
+					ret.Add(DayIntro);
+					ret.AddRange(DayEntries);
 					return ret;
 				}
 			}

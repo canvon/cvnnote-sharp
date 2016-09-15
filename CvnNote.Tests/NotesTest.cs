@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace CvnNote.Tests
@@ -35,8 +36,22 @@ namespace CvnNote.Tests
 			// implementing the INotesElement interface!
 			INotesElement elem1 = notes1.Days[0];
 
-			Assert.IsNotNull(elem1, "Day 0 as INotesElement");
-			Assert.AreEqual("2016-09-15: 3 entries", elem1.PassiveSummary, "Day 0 passive summary");
+			Assert.IsNotNull(elem1,
+				"Day 0 as INotesElement");
+			Assert.AreEqual("2016-09-15: 3 entries", elem1.PassiveSummary,
+				"Day 0 passive summary");
+
+			IList<INotesElement> elem1Children = elem1.Children;
+			Assert.AreEqual(4, elem1Children.Count,
+				"Day 0 children");
+			Assert.AreEqual("Date 2016-09-15", elem1Children[0].PassiveSummary,
+				"Day 0 child 0 (Notes.Day.Intro)");
+			Assert.AreEqual("Type information sw software1", elem1Children[1].PassiveSummary,
+				"Day 0 child 1 (Notes.Day.Entry, software1");
+			Assert.AreEqual("Type information sw software2", elem1Children[2].PassiveSummary,
+				"Day 0 child 2 (Notes.Day.Entry, software2");
+			Assert.AreEqual("Type information sw software3", elem1Children[3].PassiveSummary,
+				"Day 0 child 3 (Notes.Day.Entry, software3");
 		}
 	}
 }
