@@ -34,10 +34,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Test.cs" />
+    <Compile Include="NotesTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CvnNote\CvnNote.csproj">
+      <Project>{9FA5A986-E300-4BA0-BC2E-79B881BA49AC}</Project>
+      <Name>CvnNote</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
