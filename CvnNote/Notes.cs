@@ -2,11 +2,11 @@
 
 namespace CvnNote
 {
-	public class MyClass
+	public class Notes
 	{
-		public MyClass()
+		
+		public Notes()
 		{
 		}
 	}
 }
-
