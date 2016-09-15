@@ -16,7 +16,7 @@ namespace CvnNote
 	}
 
 
-	public class Notes
+	public class Notes : INotesElement
 	{
 		public class Day : INotesElement
 		{
@@ -199,6 +199,21 @@ namespace CvnNote
 			else {
 				if (lines.Count > 0)
 					throw new FormatException("Unrecognized lines left");
+			}
+		}
+
+
+		public string PassiveSummary {
+			get {
+				return string.Format("Notes with {0} days", Days.Count);
+			}
+		}
+
+		public IList<INotesElement> Children {
+			get {
+				var ret = new List<INotesElement>();
+				ret.AddRange(Days);
+				return ret;
 			}
 		}
 	}

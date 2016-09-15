@@ -32,9 +32,17 @@ namespace CvnNote.Tests
 			var notes1 = new Notes(new StringReader(
 				"2016-09-15\nsw software1\n\tblubber\nsw software2\nsw software3\n"));
 
-			// Test only the day for now, as this is currently the only class
-			// implementing the INotesElement interface!
-			INotesElement elem1 = notes1.Days[0];
+			INotesElement elem0 = notes1;
+
+			Assert.IsNotNull(elem0,
+				"Notes parse as INotesElement");
+			Assert.AreEqual("Notes with 1 days", elem0.PassiveSummary,
+				"Notes parse passive summary");
+
+			IList<INotesElement> elem0Children = elem0.Children;
+			Assert.AreEqual(1, elem0Children.Count,
+				"Notes parse children");
+			INotesElement elem1 = elem0Children[0];
 
 			Assert.IsNotNull(elem1,
 				"Day 0 as INotesElement");
