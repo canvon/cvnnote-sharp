@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace CvnNote
 {
@@ -90,6 +91,58 @@ namespace CvnNote
 				throw new ArgumentNullException("days");
 
 			Days = days;
+		}
+
+		public Notes(TextReader reader)
+		{
+			if (object.ReferenceEquals(reader, null))
+				throw new ArgumentNullException("reader");
+
+			Days = new List<Day>();
+			Day.Intro intro = null;
+			IList<Day.Entry> entries = new List<Day.Entry>();
+			IList<string> lines = new List<string>();
+			string line;
+
+			while ((line = reader.ReadLine()) != null) {
+				if (line.Length == 0) {
+					if (intro != null) {
+						if (lines.Count > 0) {
+							entries.Add(new Day.Entry(lines));
+							lines = new List<string>();
+						}
+
+						Days.Add(new Day(intro, entries));
+						intro = null;
+						entries = new List<Day.Entry>();
+					}
+				}
+				else if (lines.Count > 0 && line[0] != '\t' && line[0] != ' ') {
+					if (intro == null) {
+						intro = new Day.Intro(lines);
+					}
+					else {
+						entries.Add(new Day.Entry(lines));
+					}
+
+					lines = new List<string>(new string[]{line});
+				}
+				else {
+					lines.Add(line);
+				}
+			}
+
+			// Potentially add a final Day.
+			if (intro != null) {
+				if (lines.Count > 0)
+					entries.Add(new Day.Entry(lines));
+
+				Days.Add(new Day(intro, entries));
+			}
+			else {
+				if (lines.Count > 0)
+					throw new FormatException("Unrecognized lines left");
+			}
 		}
 	}
 }
