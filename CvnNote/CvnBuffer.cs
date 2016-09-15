@@ -6,6 +6,64 @@ namespace CvnNote
 {
 	public class CvnBuffer
 	{
+		public class Range
+		{
+			private CvnBuffer _buf;
+
+			private int _start;
+			public int Start {
+				get {
+					return _start;
+				}
+			}
+
+			private int _len;
+			public int Length {
+				get {
+					return _len;
+				}
+			}
+
+
+			internal Range(CvnBuffer buf, int start, int len)
+			{
+				if (object.ReferenceEquals(buf, null))
+					throw new ArgumentNullException("buf");
+
+				if (start < 0 || start >= buf.Length)
+					throw new ArgumentOutOfRangeException(
+						"start", start, "Start of range has to be inside buffer");
+
+				if (len < 0)
+					throw new ArgumentOutOfRangeException(
+						"len", len, "Length of range has to be non-negative");
+
+				if (start + len > buf.Length)
+					throw new ArgumentOutOfRangeException(
+						"len", len, "Length of range must not lead outside buffer");
+
+				_buf = buf;
+				_start = start;
+				_len = len;
+			}
+
+
+			public char this[int index] {
+				get {
+					if (index < 0)
+						throw new ArgumentOutOfRangeException(
+							"index", index, "Index has to be non-negative");
+
+					if (index >= _len)
+						throw new ArgumentOutOfRangeException(
+							"index", index, "Index must not point outside range");
+
+					return _buf[_start + index];
+				}
+			}
+		}
+
+
 		private readonly int _ChunkSize;
 		public int ChunkSize {
 			get {
@@ -104,6 +162,11 @@ namespace CvnNote
 			Debug.Assert(i == data.Length, "CvnBuffer.Append() didn't copy all the data.",
 				"Index into source data ({0}) should have matched data.Length ({1}).",
 				i, data.Length);
+		}
+
+		public Range GetRange(int start, int length)
+		{
+			return new Range(this, start, length);
 		}
 	}
 }
