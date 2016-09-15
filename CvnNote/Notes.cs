@@ -4,9 +4,21 @@ using System.IO;
 
 namespace CvnNote
 {
+	public interface INotesElement
+	{
+		string PassiveSummary {
+			get;
+		}
+
+		IList<INotesElement> Children {
+			get;
+		}
+	}
+
+
 	public class Notes
 	{
-		public class Day
+		public class Day : INotesElement
 		{
 			public class Intro
 			{
@@ -75,6 +87,22 @@ namespace CvnNote
 
 				DayIntro = intro;
 				DayEntries = entries;
+			}
+
+
+			public string PassiveSummary {
+				get {
+					return string.Format("{0}: {1} entries", DayIntro.Date, DayEntries.Count);
+				}
+			}
+
+			public IList<INotesElement> Children {
+				get {
+					var ret = new List<INotesElement>();
+					// FIXME: ret.Add(DayIntro);
+					// FIXME: ret.AddRange(DayEntries);
+					return ret;
+				}
 			}
 		}
 
