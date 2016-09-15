@@ -54,12 +54,12 @@ namespace CvnNote.Tests
 				"Day 0 children");
 			Assert.AreEqual("Date 2016-09-15", elem1Children[0].PassiveSummary,
 				"Day 0 child 0 (Notes.Day.Intro)");
-			Assert.AreEqual("Type information sw software1", elem1Children[1].PassiveSummary,
-				"Day 0 child 1 (Notes.Day.Entry, software1");
-			Assert.AreEqual("Type information sw software2", elem1Children[2].PassiveSummary,
-				"Day 0 child 2 (Notes.Day.Entry, software2");
-			Assert.AreEqual("Type information sw software3", elem1Children[3].PassiveSummary,
-				"Day 0 child 3 (Notes.Day.Entry, software3");
+			Assert.AreEqual("Type information sw software1, body lines count 1", elem1Children[1].PassiveSummary,
+				"Day 0 child 1 (Notes.Day.Entry, software1)");
+			Assert.AreEqual("Type information sw software2, body lines count 0", elem1Children[2].PassiveSummary,
+				"Day 0 child 2 (Notes.Day.Entry, software2)");
+			Assert.AreEqual("Type information sw software3, body lines count 0", elem1Children[3].PassiveSummary,
+				"Day 0 child 3 (Notes.Day.Entry, software3)");
 		}
 	}
 }

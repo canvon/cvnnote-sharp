@@ -64,6 +64,11 @@ namespace CvnNote
 					private set;
 				}
 
+				public int BodyLinesCount {
+					get;
+					private set;
+				}
+
 
 				public Entry(IList<string> lines)
 				{
@@ -75,13 +80,14 @@ namespace CvnNote
 
 					TypeInformation = lines[0];
 					// TODO: Process rest of data somehow.
+					BodyLinesCount = lines.Count - 1;
 				}
 
 
 				public string PassiveSummary {
 					get {
-						// TODO: Something like: return string.Format("Entry with {0} lines", lines.Count);
-						return string.Format("Type information {0}", TypeInformation);
+						return string.Format("Type information {0}, body lines count {1}",
+							TypeInformation, BodyLinesCount);
 					}
 				}
 
