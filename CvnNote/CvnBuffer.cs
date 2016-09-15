@@ -25,6 +25,8 @@ namespace CvnNote
 			}
 
 
+			// (Should have been private, but then even the outer class
+			// can't instantiate the inner class anymore. So marking internal.)
 			internal Range(CvnBuffer buf, int start, int len)
 			{
 				if (object.ReferenceEquals(buf, null))
