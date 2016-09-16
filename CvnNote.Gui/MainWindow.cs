@@ -115,9 +115,13 @@ namespace CvnNote.Gui
 
 		public void CloseFile()
 		{
+			this.statusbar1.Pop(_SbCtxState);
+
 			// Clean up.
 			try {
 				this.statusbar1.Push(_SbCtxActivity, "Cleaning up...");
+				Application.RunIteration(false);
+
 				this.nodeviewNotes.NodeStore.Clear();
 
 				// FIXME
@@ -131,8 +135,8 @@ namespace CvnNote.Gui
 			this.statusbar1.Pop(_SbCtxError);
 
 			// Consider file closed.
+			this.statusbar1.Push(_SbCtxState, _FilePath != null ? "File closed." : "Cleaned up again.");
 			this.FilePath = null;
-			this.statusbar1.Push(_SbCtxState, "File closed.");
 		}
 
 		public void LoadFile(string filePath)
