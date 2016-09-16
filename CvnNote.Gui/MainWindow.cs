@@ -62,11 +62,9 @@ namespace CvnNote.Gui
 			get {
 				return _FilePath;
 			}
-			set {
-				if (_FilePath != value)
-					CloseFile();
-
+			private set {
 				_FilePath = value;
+				this.InfoTitle = _FilePath;
 			}
 		}
 
@@ -123,12 +121,11 @@ namespace CvnNote.Gui
 			this.statusbar1.Pop(_SbCtxError);
 
 			// Consider file closed.
-			_FilePath = null;
-			this.InfoTitle = null;
+			this.FilePath = null;
 			this.statusbar1.Push(_SbCtxState, "File closed.");
 		}
 
-		public void LoadFile()
+		public void LoadFile(string filePath)
 		{
 			// First, ensure a clean state.
 			CloseFile();
@@ -139,7 +136,7 @@ namespace CvnNote.Gui
 			// (The idea is that a hypothetically long loading process
 			// with the user placing the window in the background
 			// would show up in the window list identifiably already.)
-			this.InfoTitle = _FilePath;
+			this.FilePath = filePath;
 
 			// Load file from stable storage.
 			try {
