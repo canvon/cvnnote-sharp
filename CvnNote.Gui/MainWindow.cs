@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Gtk;
 
@@ -158,7 +159,7 @@ namespace CvnNote.Gui
 				using (TextReader reader = new StreamReader(_FilePath)) {
 					var notes = new Notes(reader);
 
-					// TODO: Add notes nodes to the store.
+					AddNotesTree(notes);
 				}
 			}
 			catch (IOException ex) {
@@ -179,6 +180,31 @@ namespace CvnNote.Gui
 
 			// Consider file loaded.
 			this.statusbar1.Push(_SbCtxState, "File loaded.");
+		}
+
+		protected void AddNotesTree(INotesElement tree)
+		{
+			AddNotesTree(tree, null);
+		}
+
+		protected void AddNotesTree(INotesElement tree, NotesElementTreeNode parentNode)
+		{
+			if (object.ReferenceEquals(tree, null))
+				throw new ArgumentNullException("tree");
+
+			var node = new NotesElementTreeNode(tree);
+
+			if (object.ReferenceEquals(parentNode, null))
+				this.nodeviewNotes.NodeStore.AddNode(node);
+			else
+				parentNode.AddChild(node);
+
+			IList<INotesElement> childs = tree.Children;
+			if (childs != null) {
+				foreach (INotesElement child in childs) {
+					AddNotesTree(child, node);
+				}
+			}
 		}
 	}
 }
