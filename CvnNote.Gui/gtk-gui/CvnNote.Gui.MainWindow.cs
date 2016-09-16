@@ -16,6 +16,8 @@ namespace CvnNote.Gui
 		
 		private global::Gtk.MenuBar menubar1;
 		
+		private global::Gtk.Toolbar toolbar1;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::Gtk.NodeView nodeviewNotes;
@@ -56,6 +58,16 @@ namespace CvnNote.Gui
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbar1'><toolitem name='quitAction' action='quitAction'/><toolitem name='openAction' action='openAction'/></toolbar></ui>");
+			this.toolbar1 = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbar1")));
+			this.toolbar1.Name = "toolbar1";
+			this.toolbar1.ShowArrow = false;
+			this.vbox1.Add (this.toolbar1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.toolbar1]));
+			w3.Position = 1;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -65,18 +77,18 @@ namespace CvnNote.Gui
 			this.nodeviewNotes.Name = "nodeviewNotes";
 			this.GtkScrolledWindow.Add (this.nodeviewNotes);
 			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w4.Position = 1;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			w5.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.statusbar1 = new global::Gtk.Statusbar ();
 			this.statusbar1.Name = "statusbar1";
 			this.statusbar1.Spacing = 6;
 			this.vbox1.Add (this.statusbar1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
-			w5.PackType = ((global::Gtk.PackType)(1));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 3;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
