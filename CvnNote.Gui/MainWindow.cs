@@ -90,9 +90,7 @@ namespace CvnNote.Gui
 			// Set up signals. Doing this manually should be cleaner
 			// than an association getting lost in the auto-generated code...
 			this.closeAction.Activated += (object sender, EventArgs e) =>
-				// This leaves the application running with no window: this.Destroy();
-				// FIXME: Implement closing only the window, but quitting on close of last window!
-				Application.Quit();
+				CloseFile();
 			this.quitAction.Activated += (object sender, EventArgs e) =>
 				Application.Quit();
 		}
