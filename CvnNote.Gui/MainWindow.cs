@@ -103,6 +103,17 @@ namespace CvnNote.Gui
 			a.RetVal = true;
 		}
 
+		protected void VisualizeError(string format, params object[] args)
+		{
+			this.statusbar1.Push(_SbCtxError, string.Format(format, args));
+
+			var dialog = new MessageDialog(
+				null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
+				format, args);
+			dialog.Run();
+			dialog.Destroy();
+		}
+
 		public void CloseFile()
 		{
 			// Clean up.
@@ -149,6 +160,18 @@ namespace CvnNote.Gui
 
 					// TODO: Add notes nodes to the store.
 				}
+			}
+			catch (IOException ex) {
+				VisualizeError("Error processing file \"{0}\": {1}",
+					_FilePath, ex.Message);
+				this.FilePath = null;
+				return;
+			}
+			catch (Exception ex) {
+				VisualizeError("Unexpected error (file was \"{0}\"): {1}",
+					_FilePath, ex.Message);
+				this.FilePath = null;
+				return;
 			}
 			finally {
 				this.statusbar1.Pop(_SbCtxActivity);
