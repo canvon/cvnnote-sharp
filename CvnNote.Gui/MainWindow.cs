@@ -157,6 +157,7 @@ namespace CvnNote.Gui
 				this.statusbar1.Push(_SbCtxActivity, string.Format(
 					"Loading file \"{0}\"...",
 					_FilePath));
+				Application.RunIteration(false);
 
 				using (TextReader reader = new StreamReader(_FilePath)) {
 					var notes = new Notes(reader);
