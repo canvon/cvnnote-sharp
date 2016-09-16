@@ -89,6 +89,7 @@ namespace CvnNote.Gui
 
 			// Set up signals. Doing this manually should be cleaner
 			// than an association getting lost in the auto-generated code...
+			this.openAction.Activated += OpenAction_Activated;
 			this.closeAction.Activated += (object sender, EventArgs e) =>
 				CloseFile();
 			this.quitAction.Activated += (object sender, EventArgs e) =>
@@ -100,6 +101,28 @@ namespace CvnNote.Gui
 		{
 			Application.Quit();
 			a.RetVal = true;
+		}
+
+		void OpenAction_Activated(object sender, EventArgs e)
+		{
+			// Let the user select a file to open.
+			var dialog = new FileChooserDialog(
+				string.Format("Open file - {0}", BaseTitle),
+				this, FileChooserAction.Open);
+
+			dialog.AddButton(Stock.Cancel, ResponseType.Cancel);
+			dialog.AddButton(Stock.Open, ResponseType.Ok);
+
+			int result = dialog.Run();
+			string filePath = dialog.Filename;
+			dialog.Destroy();
+
+			// Check that the user did in fact give confirmation.
+			if (result != (int)ResponseType.Ok)
+				return;
+
+			// Actually open the file.
+			LoadFile(filePath);
 		}
 
 		protected void VisualizeError(string format, params object[] args)
