@@ -8,7 +8,7 @@
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <widget-library name="../bin/Debug/CvnNote.Gui.exe" internal="true" />
   </import>
-  <widget class="Gtk.Window" id="CvnNote.Gui.MainWindow" design-size="400 300">
+  <widget class="Gtk.Window" id="CvnNote.Gui.MainWindow" design-size="401 300">
     <action-group name="Default">
       <action id="FileAction">
         <property name="Type">Action</property>
@@ -27,6 +27,12 @@
         <property name="ShortLabel" translatable="yes">_Quit</property>
         <property name="StockId">gtk-quit</property>
       </action>
+      <action id="closeAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">_Close</property>
+        <property name="ShortLabel" translatable="yes">_Close</property>
+        <property name="StockId">gtk-close</property>
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">cvnnote-sharp GUI</property>
@@ -42,6 +48,8 @@
             <node name="__gtksharp_182_Stetic_Editor_ActionMenuBar" type="Menubar">
               <node type="Menu" action="FileAction">
                 <node type="Menuitem" action="openAction" />
+                <node type="Menuitem" action="closeAction" />
+                <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />
               </node>
             </node>
@@ -59,6 +67,7 @@
             <property name="ShowArrow">False</property>
             <node name="__gtksharp_198_Stetic_Editor_ActionToolbar" type="Toolbar">
               <node type="Toolitem" action="quitAction" />
+              <node type="Toolitem" action="closeAction" />
               <node type="Toolitem" action="openAction" />
             </node>
           </widget>

@@ -9,6 +9,10 @@ namespace CvnNote.Gui
 		{
 			Build();
 
+			this.closeAction.Activated += (object sender, EventArgs e) =>
+				// This leaves the application running with no window: this.Destroy();
+				// FIXME: Implement closing only the window, but quitting on close of last window!
+				Application.Quit();
 			this.quitAction.Activated += (object sender, EventArgs e) =>
 				Application.Quit();
 		}
