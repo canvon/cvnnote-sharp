@@ -8,6 +8,9 @@ namespace CvnNote.Gui
 		public MainWindow() : base(Gtk.WindowType.Toplevel)
 		{
 			Build();
+
+			this.quitAction.Activated += (object sender, EventArgs e) =>
+				Application.Quit();
 		}
 
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
