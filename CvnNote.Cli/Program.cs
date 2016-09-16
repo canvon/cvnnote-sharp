@@ -48,6 +48,7 @@ namespace CvnNote.Cli
 					Console.Error.WriteLine(
 						"Unexpected error (input file was \"{0}\"): {1}",
 						inputFilePath, ex.Message);
+					return 1;
 				}
 			}
 
