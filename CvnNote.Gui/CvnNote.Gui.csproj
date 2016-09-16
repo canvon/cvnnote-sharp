@@ -68,4 +68,10 @@
     <Compile Include="gtk-gui\CvnNote.Gui.MainWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\CvnNote\CvnNote.csproj">
+      <Project>{9FA5A986-E300-4BA0-BC2E-79B881BA49AC}</Project>
+      <Name>CvnNote</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
