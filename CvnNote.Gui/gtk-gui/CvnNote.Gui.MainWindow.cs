@@ -4,13 +4,80 @@ namespace CvnNote.Gui
 {
 	public partial class MainWindow
 	{
+		private global::Gtk.UIManager UIManager;
+		
+		private global::Gtk.Action FileAction;
+		
+		private global::Gtk.Action openAction;
+		
+		private global::Gtk.Action quitAction;
+		
+		private global::Gtk.VBox vbox1;
+		
+		private global::Gtk.MenuBar menubar1;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		
+		private global::Gtk.NodeView nodeviewNotes;
+		
+		private global::Gtk.Statusbar statusbar1;
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
 			// Widget CvnNote.Gui.MainWindow
+			this.UIManager = new global::Gtk.UIManager ();
+			global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("Default");
+			this.FileAction = new global::Gtk.Action ("FileAction", global::Mono.Unix.Catalog.GetString ("_File"), null, null);
+			this.FileAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_File");
+			w1.Add (this.FileAction, null);
+			this.openAction = new global::Gtk.Action ("openAction", global::Mono.Unix.Catalog.GetString ("_Open"), null, "gtk-open");
+			this.openAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_Open");
+			w1.Add (this.openAction, null);
+			this.quitAction = new global::Gtk.Action ("quitAction", global::Mono.Unix.Catalog.GetString ("_Quit"), null, "gtk-quit");
+			this.quitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_Quit");
+			w1.Add (this.quitAction, null);
+			this.UIManager.InsertActionGroup (w1, 0);
+			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "CvnNote.Gui.MainWindow";
-			this.Title = global::Mono.Unix.Catalog.GetString ("MainWindow");
+			this.Title = global::Mono.Unix.Catalog.GetString ("cvnnote-sharp GUI");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
+			// Container child CvnNote.Gui.MainWindow.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='FileAction' action='FileAction'><menuitem name='openAction' action='openAction'/><menuitem name='quitAction' action='quitAction'/></menu></menubar></ui>");
+			this.menubar1 = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar1")));
+			this.menubar1.Name = "menubar1";
+			this.vbox1.Add (this.menubar1);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.menubar1]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.nodeviewNotes = new global::Gtk.NodeView ();
+			this.nodeviewNotes.CanFocus = true;
+			this.nodeviewNotes.Name = "nodeviewNotes";
+			this.GtkScrolledWindow.Add (this.nodeviewNotes);
+			this.vbox1.Add (this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			w4.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.statusbar1 = new global::Gtk.Statusbar ();
+			this.statusbar1.Name = "statusbar1";
+			this.statusbar1.Spacing = 6;
+			this.vbox1.Add (this.statusbar1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
+			w5.PackType = ((global::Gtk.PackType)(1));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
