@@ -123,9 +123,6 @@ namespace CvnNote.Gui
 				Application.RunIteration(false);
 
 				this.nodeviewNotes.NodeStore.Clear();
-
-				// FIXME
-				System.Threading.Thread.Sleep(3000);
 			}
 			finally {
 				this.statusbar1.Pop(_SbCtxActivity);
