@@ -6,6 +6,10 @@ namespace CvnNote
 {
 	public interface INotesElement
 	{
+		int StartLineNumber {
+			get;
+		}
+
 		string PassiveSummary {
 			get;
 		}
@@ -22,6 +26,11 @@ namespace CvnNote
 		{
 			public class Intro : INotesElement
 			{
+				public int StartLineNumber {
+					get;
+					private set;
+				}
+
 				// TODO: Store as DateTime
 				public string Date {
 					get;
@@ -42,6 +51,16 @@ namespace CvnNote
 					Date = lines[0];
 				}
 
+				public Intro(IList<string> lines, int startLineNumber)
+					: this(lines)
+				{
+					if (startLineNumber < 0)
+						throw new ArgumentOutOfRangeException(
+							"startLineNumber", startLineNumber, "Start line number has to be non-negative");
+
+					this.StartLineNumber = startLineNumber;
+				}
+
 
 				public string PassiveSummary {
 					get {
@@ -59,6 +78,11 @@ namespace CvnNote
 
 			public class Entry : INotesElement
 			{
+				public int StartLineNumber {
+					get;
+					private set;
+				}
+
 				public string TypeInformation {
 					get;
 					private set;
@@ -83,6 +107,16 @@ namespace CvnNote
 					BodyLinesCount = lines.Count - 1;
 				}
 
+				public Entry(IList<string> lines, int startLineNumber)
+					: this(lines)
+				{
+					if (startLineNumber < 0)
+						throw new ArgumentOutOfRangeException(
+							"startLineNumber", startLineNumber, "Start line number has to be non-negative");
+
+					this.StartLineNumber = startLineNumber;
+				}
+
 
 				public string PassiveSummary {
 					get {
@@ -100,6 +134,11 @@ namespace CvnNote
 				}
 			}
 
+
+			public int StartLineNumber {
+				get;
+				private set;
+			}
 
 			public Intro DayIntro {
 				get;
@@ -124,6 +163,16 @@ namespace CvnNote
 				DayEntries = entries;
 			}
 
+			public Day(Intro intro, IList<Entry> entries, int startLineNumber)
+				: this(intro, entries)
+			{
+				if (startLineNumber < 0)
+					throw new ArgumentOutOfRangeException(
+						"startLineNumber", startLineNumber, "Start line number has to be non-negative");
+
+				this.StartLineNumber = startLineNumber;
+			}
+
 
 			public string PassiveSummary {
 				get {
@@ -141,6 +190,14 @@ namespace CvnNote
 			}
 		}
 
+
+		public int StartLineNumber {
+			get {
+				// As long as the notes always start the start of file,
+				// this will be constant 1.
+				return 1;
+			}
+		}
 
 		public IList<Day> Days {
 			get;
@@ -166,26 +223,32 @@ namespace CvnNote
 			IList<Day.Entry> entries = new List<Day.Entry>();
 			IList<string> lines = new List<string>();
 			string line;
+			int lineNumber = 0, startLineNumber = 1;
 
 			while ((line = reader.ReadLine()) != null) {
+				lineNumber++;
+
 				if (line.Length == 0) {
 					if (intro != null) {
 						if (lines.Count > 0) {
-							entries.Add(new Day.Entry(lines));
+							entries.Add(new Day.Entry(lines, startLineNumber));
+							startLineNumber = lineNumber;
 							lines = new List<string>();
 						}
 
-						Days.Add(new Day(intro, entries));
+						Days.Add(new Day(intro, entries, intro.StartLineNumber));
 						intro = null;
 						entries = new List<Day.Entry>();
 					}
 				}
 				else if (lines.Count > 0 && line[0] != '\t' && line[0] != ' ') {
 					if (intro == null) {
-						intro = new Day.Intro(lines);
+						intro = new Day.Intro(lines, startLineNumber);
+						startLineNumber = lineNumber;
 					}
 					else {
-						entries.Add(new Day.Entry(lines));
+						entries.Add(new Day.Entry(lines, startLineNumber));
+						startLineNumber = lineNumber;
 					}
 
 					lines = new List<string>(new string[]{line});
@@ -198,9 +261,9 @@ namespace CvnNote
 			// Potentially add a final Day.
 			if (intro != null) {
 				if (lines.Count > 0)
-					entries.Add(new Day.Entry(lines));
+					entries.Add(new Day.Entry(lines, startLineNumber));
 
-				Days.Add(new Day(intro, entries));
+				Days.Add(new Day(intro, entries, intro.StartLineNumber));
 			}
 			else {
 				if (lines.Count > 0)
