@@ -28,6 +28,13 @@ namespace CvnNote.Gui
 				return NotesElement.PassiveSummary;
 			}
 		}
+
+		[TreeNodeValue(Column = 1)]
+		public string StartLineNumber {
+			get {
+				return string.Format("{0}", NotesElement.StartLineNumber);
+			}
+		}
 	}
 
 
@@ -86,6 +93,12 @@ namespace CvnNote.Gui
 			this.nodeviewNotes.NodeStore = new NodeStore(typeof(NotesElementTreeNode));
 
 			this.nodeviewNotes.AppendColumn("Summary", new CellRendererText(), "text", 0);
+
+			var cellRendererLine = new CellRendererText();
+			cellRendererLine.Alignment = Pango.Alignment.Right;
+			this.nodeviewNotes.AppendColumn("Line", cellRendererLine, "text", 1);
+
+			this.nodeviewNotes.NodeSelection.Changed += NodeviewNotes_NodeSelection_Changed;
 
 			// Set up signals. Doing this manually should be cleaner
 			// than an association getting lost in the auto-generated code...
@@ -243,6 +256,20 @@ namespace CvnNote.Gui
 					AddNotesTree(child, node);
 				}
 			}
+		}
+
+		void NodeviewNotes_NodeSelection_Changed(object sender, EventArgs e)
+		{
+			// Try to retrieve the currently selected node.
+			var node = this.nodeviewNotes.NodeSelection.SelectedNode as NotesElementTreeNode;
+			if (object.ReferenceEquals(node, null))
+				// Keep state.
+				return;
+
+			// Scroll TextView to associated position in the text.
+			TextBuffer buf = this.textviewText.Buffer;
+			TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
+			this.textviewText.ScrollToIter(iter, 0, false, 0, 0);
 		}
 	}
 }
