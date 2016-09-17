@@ -260,6 +260,11 @@ namespace CvnNote.Gui
 
 		void NodeviewNotes_NodeSelection_Changed(object sender, EventArgs e)
 		{
+			// Clear state message at the point of a new user interaction.
+			// (If node got *de*-selected, rather have a blank status bar
+			// than still the information we would have jumped to line <n>.)
+			this.statusbar1.Pop(_SbCtxState);
+
 			// Try to retrieve the currently selected node.
 			var node = this.nodeviewNotes.NodeSelection.SelectedNode as NotesElementTreeNode;
 			if (object.ReferenceEquals(node, null))
@@ -270,6 +275,10 @@ namespace CvnNote.Gui
 			TextBuffer buf = this.textviewText.Buffer;
 			TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
 			this.textviewText.ScrollToIter(iter, 0, true, 0, 0.5);
+
+			// Inform the user about what has been done.
+			this.statusbar1.Push(_SbCtxState,
+				string.Format("Jumped to plaintext line {0}.", node.NotesElement.StartLineNumber));
 		}
 	}
 }
