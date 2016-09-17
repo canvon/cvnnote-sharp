@@ -145,6 +145,7 @@ namespace CvnNote.Gui
 				this.statusbar1.Push(_SbCtxActivity, "Cleaning up...");
 				Application.RunIteration(false);
 
+				this.textviewText.Buffer.Clear();
 				this.nodeviewNotes.NodeStore.Clear();
 			}
 			finally {
@@ -179,9 +180,23 @@ namespace CvnNote.Gui
 					_FilePath));
 				Application.RunIteration(false);
 
-				using (TextReader reader = new StreamReader(_FilePath)) {
+				using (var reader = new StreamReader(_FilePath)) {
+					// TODO: Read in text for TextView and for Notes in parallel.
+					//       Otherwise, they could diverge...
+					// Read in text for TextView.
+					TextBuffer buf = this.textviewText.Buffer;
+					TextIter end = buf.EndIter;
+					buf.Insert(ref end, reader.ReadToEnd());
+
+					// For now, reset the reader to beginning
+					// and read everything in again.
+					// TODO: (Or can/should we read the data from the TextView?)
+					reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+					// Parse text as Notes.
 					var notes = new Notes(reader);
 
+					// Make parse visible to the user.
 					AddNotesTree(notes);
 				}
 			}

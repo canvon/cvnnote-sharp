@@ -8,7 +8,7 @@
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <widget-library name="../bin/Debug/CvnNote.Gui.exe" internal="true" />
   </import>
-  <widget class="Gtk.Window" id="CvnNote.Gui.MainWindow" design-size="401 300">
+  <widget class="Gtk.Window" id="CvnNote.Gui.MainWindow" design-size="690 503">
     <action-group name="Default">
       <action id="FileAction">
         <property name="Type">Action</property>
@@ -79,14 +79,40 @@
           </packing>
         </child>
         <child>
-          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+          <widget class="Gtk.VPaned" id="vpaned1">
             <property name="MemberName" />
-            <property name="ShadowType">In</property>
+            <property name="CanFocus">True</property>
+            <property name="Position">198</property>
             <child>
-              <widget class="Gtk.NodeView" id="nodeviewNotes">
+              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                 <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="ShowScrollbars">True</property>
+                <property name="ShadowType">In</property>
+                <child>
+                  <widget class="Gtk.TextView" id="textviewText">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="ShowScrollbars">True</property>
+                    <property name="Editable">False</property>
+                    <property name="Text" translatable="yes" />
+                    <property name="WrapMode">WordChar</property>
+                  </widget>
+                </child>
+              </widget>
+              <packing>
+                <property name="Resize">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                <property name="MemberName" />
+                <property name="ShadowType">In</property>
+                <child>
+                  <widget class="Gtk.NodeView" id="nodeviewNotes">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="ShowScrollbars">True</property>
+                  </widget>
+                </child>
               </widget>
             </child>
           </widget>

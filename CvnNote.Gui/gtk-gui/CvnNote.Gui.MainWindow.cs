@@ -20,6 +20,12 @@ namespace CvnNote.Gui
 		
 		private global::Gtk.Toolbar toolbar1;
 		
+		private global::Gtk.VPaned vpaned1;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+		
+		private global::Gtk.TextView textviewText;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::Gtk.NodeView nodeviewNotes;
@@ -73,6 +79,25 @@ namespace CvnNote.Gui
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.vpaned1 = new global::Gtk.VPaned ();
+			this.vpaned1.CanFocus = true;
+			this.vpaned1.Name = "vpaned1";
+			this.vpaned1.Position = 198;
+			// Container child vpaned1.Gtk.Paned+PanedChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.textviewText = new global::Gtk.TextView ();
+			this.textviewText.CanFocus = true;
+			this.textviewText.Name = "textviewText";
+			this.textviewText.Editable = false;
+			this.textviewText.WrapMode = ((global::Gtk.WrapMode)(3));
+			this.GtkScrolledWindow1.Add (this.textviewText);
+			this.vpaned1.Add (this.GtkScrolledWindow1);
+			global::Gtk.Paned.PanedChild w5 = ((global::Gtk.Paned.PanedChild)(this.vpaned1 [this.GtkScrolledWindow1]));
+			w5.Resize = false;
+			// Container child vpaned1.Gtk.Paned+PanedChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -81,25 +106,26 @@ namespace CvnNote.Gui
 			this.nodeviewNotes.CanFocus = true;
 			this.nodeviewNotes.Name = "nodeviewNotes";
 			this.GtkScrolledWindow.Add (this.nodeviewNotes);
-			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w5.Position = 2;
+			this.vpaned1.Add (this.GtkScrolledWindow);
+			this.vbox1.Add (this.vpaned1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.vpaned1]));
+			w8.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.statusbar1 = new global::Gtk.Statusbar ();
 			this.statusbar1.Name = "statusbar1";
 			this.statusbar1.Spacing = 6;
 			this.vbox1.Add (this.statusbar1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
-			w6.PackType = ((global::Gtk.PackType)(1));
-			w6.Position = 3;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
+			w9.PackType = ((global::Gtk.PackType)(1));
+			w9.Position = 3;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 401;
-			this.DefaultHeight = 300;
+			this.DefaultWidth = 690;
+			this.DefaultHeight = 503;
 			this.Show ();
 			this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 		}
