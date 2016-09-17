@@ -20,6 +20,12 @@ namespace CvnNote.Gui
 		
 		private global::Gtk.Toolbar toolbar1;
 		
+		private global::Gtk.HBox hbox1;
+		
+		private global::Gtk.Label labelFilePath;
+		
+		private global::Gtk.Entry entryFilePath;
+		
 		private global::Gtk.VPaned vpaned1;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
@@ -79,6 +85,33 @@ namespace CvnNote.Gui
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.labelFilePath = new global::Gtk.Label ();
+			this.labelFilePath.Name = "labelFilePath";
+			this.labelFilePath.LabelProp = global::Mono.Unix.Catalog.GetString ("File path");
+			this.hbox1.Add (this.labelFilePath);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelFilePath]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.entryFilePath = new global::Gtk.Entry ();
+			this.entryFilePath.CanFocus = true;
+			this.entryFilePath.Name = "entryFilePath";
+			this.entryFilePath.IsEditable = false;
+			this.entryFilePath.InvisibleChar = '●';
+			this.hbox1.Add (this.entryFilePath);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.entryFilePath]));
+			w5.Position = 1;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.vpaned1 = new global::Gtk.VPaned ();
 			this.vpaned1.CanFocus = true;
 			this.vpaned1.Name = "vpaned1";
@@ -95,8 +128,8 @@ namespace CvnNote.Gui
 			this.textviewText.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow1.Add (this.textviewText);
 			this.vpaned1.Add (this.GtkScrolledWindow1);
-			global::Gtk.Paned.PanedChild w5 = ((global::Gtk.Paned.PanedChild)(this.vpaned1 [this.GtkScrolledWindow1]));
-			w5.Resize = false;
+			global::Gtk.Paned.PanedChild w8 = ((global::Gtk.Paned.PanedChild)(this.vpaned1 [this.GtkScrolledWindow1]));
+			w8.Resize = false;
 			// Container child vpaned1.Gtk.Paned+PanedChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -108,18 +141,18 @@ namespace CvnNote.Gui
 			this.GtkScrolledWindow.Add (this.nodeviewNotes);
 			this.vpaned1.Add (this.GtkScrolledWindow);
 			this.vbox1.Add (this.vpaned1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.vpaned1]));
-			w8.Position = 2;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.vpaned1]));
+			w11.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.statusbar1 = new global::Gtk.Statusbar ();
 			this.statusbar1.Name = "statusbar1";
 			this.statusbar1.Spacing = 6;
 			this.vbox1.Add (this.statusbar1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
-			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 4;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

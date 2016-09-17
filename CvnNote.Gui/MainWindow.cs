@@ -72,7 +72,8 @@ namespace CvnNote.Gui
 			}
 			private set {
 				_FilePath = value;
-				this.InfoTitle = _FilePath;
+				this.entryFilePath.Text = _FilePath ?? String.Empty;
+				this.InfoTitle = _FilePath != null ? System.IO.Path.GetFileName(_FilePath) : null;
 			}
 		}
 
