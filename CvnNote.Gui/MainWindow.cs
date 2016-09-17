@@ -269,7 +269,7 @@ namespace CvnNote.Gui
 			// Scroll TextView to associated position in the text.
 			TextBuffer buf = this.textviewText.Buffer;
 			TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
-			this.textviewText.ScrollToIter(iter, 0, false, 0, 0);
+			this.textviewText.ScrollToIter(iter, 0, true, 0, 0.5);
 		}
 	}
 }
