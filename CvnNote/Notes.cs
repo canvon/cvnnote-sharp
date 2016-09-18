@@ -203,6 +203,61 @@ namespace CvnNote
 				this.StartLineNumber = startLineNumber;
 			}
 
+			public Day(IList<string> lines, int startLineNumber)
+			{
+				if (object.ReferenceEquals(lines, null))
+					throw new ArgumentNullException("lines");
+
+				if (startLineNumber < 0)
+					throw new ArgumentOutOfRangeException(
+						"startLineNumber", startLineNumber, "Start line number has to be non-negative");
+
+				this.StartLineNumber = startLineNumber;
+				this.TotalLineCount = lines.Count;
+
+				this.DayIntro = null;
+				this.DayEntries = new List<Entry>();
+
+				int subLineNumber = 0, subStartLineNumber = 1;
+				var subLines = new List<string>();
+
+				foreach (string line in lines) {
+					subLineNumber++;
+
+					if (line.Length == 0) {
+						throw new FormatException("Invalid empty line in day parser");
+					}
+					// Split on non-indented lines.
+					else if (subLines.Count > 0 && line[0] != '\t' && line[0] != ' ') {
+						if (this.DayIntro == null) {
+							this.DayIntro = new Intro(subLines, startLineNumber + subStartLineNumber - 1);
+						}
+						else {
+							this.DayEntries.Add(new Entry(subLines, startLineNumber + subStartLineNumber - 1));
+						}
+
+						// Prepare for more data. (Make sure to keep current line.)
+						subStartLineNumber = subLineNumber;
+						subLines = new List<string>(new string[]{line});
+					}
+					else {
+						subLines.Add(line);
+					}
+				}
+
+				// Potentially add a final intro/entry.
+				if (subLines.Count > 0) {
+					if (this.DayIntro == null)
+						this.DayIntro = new Intro(subLines, startLineNumber + subStartLineNumber - 1);
+					else
+						this.DayEntries.Add(new Entry(subLines, startLineNumber + subStartLineNumber - 1));
+				}
+
+				// Post-parse correctness verification:
+				if (object.ReferenceEquals(this.DayIntro, null))
+					throw new FormatException("Day intro not found");
+			}
+
 
 			public string PassiveSummary {
 				get {
@@ -258,9 +313,7 @@ namespace CvnNote
 			if (object.ReferenceEquals(reader, null))
 				throw new ArgumentNullException("reader");
 
-			Days = new List<Day>();
-			Day.Intro intro = null;
-			IList<Day.Entry> entries = new List<Day.Entry>();
+			this.Days = new List<Day>();
 			IList<string> lines = new List<string>();
 			string line;
 			int lineNumber = 0, startLineNumber = 1;
@@ -268,30 +321,15 @@ namespace CvnNote
 			while ((line = reader.ReadLine()) != null) {
 				lineNumber++;
 
+				// Split on empty lines.
 				if (line.Length == 0) {
-					if (intro != null) {
-						if (lines.Count > 0) {
-							entries.Add(new Day.Entry(lines, startLineNumber));
-							startLineNumber = lineNumber;
-							lines = new List<string>();
-						}
+					if (lines.Count > 0)
+						this.Days.Add(new Day(lines, startLineNumber));
 
-						Days.Add(new Day(intro, entries, intro.StartLineNumber));
-						intro = null;
-						entries = new List<Day.Entry>();
-					}
-				}
-				else if (lines.Count > 0 && line[0] != '\t' && line[0] != ' ') {
-					if (intro == null) {
-						intro = new Day.Intro(lines, startLineNumber);
-						startLineNumber = lineNumber;
-					}
-					else {
-						entries.Add(new Day.Entry(lines, startLineNumber));
-						startLineNumber = lineNumber;
-					}
-
-					lines = new List<string>(new string[]{line});
+					// Prepare for more data.
+					// (But skip current line.)
+					startLineNumber = lineNumber + 1;
+					lines = new List<string>();
 				}
 				else {
 					lines.Add(line);
@@ -299,16 +337,8 @@ namespace CvnNote
 			}
 
 			// Potentially add a final Day.
-			if (intro != null) {
-				if (lines.Count > 0)
-					entries.Add(new Day.Entry(lines, startLineNumber));
-
-				Days.Add(new Day(intro, entries, intro.StartLineNumber));
-			}
-			else {
-				if (lines.Count > 0)
-					throw new FormatException("Unrecognized lines left");
-			}
+			if (lines.Count > 0)
+				this.Days.Add(new Day(lines, startLineNumber));
 
 			this.TotalLineCount = lineNumber;
 		}
