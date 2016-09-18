@@ -33,6 +33,11 @@
         <property name="ShortLabel" translatable="yes">_Close</property>
         <property name="StockId">gtk-close</property>
       </action>
+      <action id="RecentAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Recent</property>
+        <property name="ShortLabel" translatable="yes">Recent</property>
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">cvnnote-sharp GUI</property>
@@ -48,6 +53,7 @@
             <node name="__gtksharp_182_Stetic_Editor_ActionMenuBar" type="Menubar">
               <node type="Menu" action="FileAction">
                 <node type="Menuitem" action="openAction" />
+                <node type="Menu" action="RecentAction" />
                 <node type="Menuitem" action="closeAction" />
                 <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />

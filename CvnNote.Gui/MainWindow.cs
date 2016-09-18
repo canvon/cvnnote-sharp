@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Gtk;
 
@@ -77,6 +78,19 @@ namespace CvnNote.Gui
 			}
 		}
 
+		private string _RecentApplicationName = "cvnnote-sharp";
+		public string RecentApplicationName {
+			get {
+				return _RecentApplicationName;
+			}
+			set {
+				_RecentApplicationName = value;
+				UpdateRecentMenu();
+			}
+		}
+
+		protected Menu RecentMenu = null;
+
 
 		public MainWindow() : base(Gtk.WindowType.Toplevel)
 		{
@@ -101,8 +115,61 @@ namespace CvnNote.Gui
 
 			this.nodeviewNotes.NodeSelection.Changed += NodeviewNotes_NodeSelection_Changed;
 
+			// Set up recent menu.
+			Debug.Print("[MainWindow] ctor: Searching for 'Recent' menu...");
+			foreach (Widget widget in this.menubar1) {
+				Debug.Print("[MainWindow] ctor: Examining widget: {0}", widget);
+				var menuItem = widget as MenuItem;
+				if (object.ReferenceEquals(menuItem, null)) {
+					Debug.Print("[MainWindow] ctor: Widget is not a MenuItem. Skipping.");
+					continue;
+				}
+
+				var menu = menuItem.Submenu as Menu;
+				if (object.ReferenceEquals(menu, null)) {
+					Debug.Print("[MainWindow] ctor: MenuItem's submenu is not a Menu. Skipping.");
+					continue;
+				}
+
+				if (object.ReferenceEquals(menu.Action, this.FileAction)) {
+					Debug.Print("[MainWindow] ctor: Menu is not the 'File' menu. Skipping.");
+					continue;
+				}
+
+				Debug.Print("[MainWindow] ctor: Found 'File' menu.");
+
+				foreach (Widget widget2 in menu) {
+					Debug.Print("[MainWindow] ctor: File menu: Examining widget: {0}", widget2);
+					var menuItem2 = widget2 as MenuItem;
+					if (object.ReferenceEquals(menuItem2, null)) {
+						Debug.Print("[MainWindow] ctor: File menu: Widget is not a MenuItem. Skipping.");
+						continue;
+					}
+
+					if (object.ReferenceEquals(menuItem2.Action, this.RecentAction)) {
+						Debug.Print("[MainWindow] ctor: File menu: Found 'Recent' menu item.");
+						this.RecentMenu = menuItem2.Submenu as Menu;
+						if (object.ReferenceEquals(this.RecentMenu, null)) {
+							Debug.Print("[MainWindow] ctor: File menu: Can't handle 'Recent' submenu. Breaking out.");
+							break;
+						}
+						break;
+					}
+				}
+
+				if (!object.ReferenceEquals(this.RecentMenu, null))
+					break;
+			}
+
+			if (object.ReferenceEquals(this.RecentMenu, null))
+				Debug.Print("[MainWindow] ctor: Couldn't find 'Recent' menu.");
+
+			UpdateRecentMenu();
+
 			// Set up signals. Doing this manually should be cleaner
 			// than an association getting lost in the auto-generated code...
+			RecentManager.Default.Changed += (sender, e) =>
+				UpdateRecentMenu();
 			this.openAction.Activated += OpenAction_Activated;
 			this.closeAction.Activated += (object sender, EventArgs e) =>
 				CloseFile();
@@ -115,6 +182,57 @@ namespace CvnNote.Gui
 		{
 			Application.Quit();
 			a.RetVal = true;
+		}
+
+		public void UpdateRecentMenu()
+		{
+			// Make sure we know about the recent menu.
+			if (object.ReferenceEquals(this.RecentMenu, null)) {
+				Debug.Print("[MainWindow] UpdateRecentMenu(): Don't know about a recent menu, skipping.");
+				return;
+			}
+
+			// Clear recent menu.
+			foreach (Widget child in this.RecentMenu.AllChildren) {
+				this.RecentMenu.Remove(child);
+			}
+
+			// Fill recent menu again.
+			// TODO: Try to use RecentChooserMenu instead?
+			int recentNumber = 1;
+			RecentManager manager = RecentManager.Default;
+			foreach (object item in new GLib.List(
+				manager.Items.Handle, typeof(RecentInfo), true, true)) {
+				// ^ We need to work-around known crash-bug
+				//   when using manager.Items directly.
+
+				if (recentNumber > 9)
+					// Skip the rest.
+					break;
+
+				var info = item as RecentInfo;
+				if (object.ReferenceEquals(info, null)) {
+					Debug.Print("[MainWindow] UpdateRecentMenu(): RecentManager item is not a RecentInfo: {0}",
+						item);
+					continue;
+				}
+
+				// Only offer files in the recent menu that we registered ourselves.
+				if (!info.HasApplication(_RecentApplicationName))
+					continue;
+
+				// Actually add a new entry in the recent menu.
+				var menuItem = new MenuItem(string.Format("_{0} {1}",
+					recentNumber++, info.UriDisplay));
+				string uri = info.Uri;
+				menuItem.Activated += (object sender, EventArgs e) => LoadFile(uri);
+				this.RecentMenu.Add(menuItem);
+			}
+
+			Debug.Print("[MainWindow] UpdateRecentMenu(): Created recent menu with {0} entries",
+				recentNumber - 1);
+
+			this.RecentMenu.ShowAll();
 		}
 
 		void OpenAction_Activated(object sender, EventArgs e)
@@ -186,6 +304,39 @@ namespace CvnNote.Gui
 			// with the user placing the window in the background
 			// would show up in the window list identifiably already.)
 			this.FilePath = filePath;
+
+			// Register file as recently used, so that it can be opened easily
+			// via the File -> Recent submenu.
+			try {
+				this.statusbar1.Push(_SbCtxActivity, string.Format(
+					"Registering file \"{0}\" as recently used...",
+					_FilePath));
+				Application.RunIteration(false);
+
+				RecentManager manager = RecentManager.Default;
+				var data = new RecentData();
+				data.MimeType = "text/plain";
+				data.AppName = this.RecentApplicationName;
+				// Rather don't record current binary location,
+				// it could be a development version...
+				// But we have to enter something so that Gtk
+				// will let us record the recent info at all,
+				// so we make something up here that will be used
+				// when the program would be installed system-wide...
+				data.AppExec = "cvnnote-gui %u";
+				if (manager.AddFull(_FilePath, data) == false) {
+					// (I, Fabian, wanted to make this an error
+					// that is always somehow reported, but I was told
+					// that someone who disables the recent files list
+					// would not want log info spam in return ...  So,)
+					Debug.Print("[MainWindow] LoadFile(): " +
+						"Adding file \"{0}\" to recently used files list did not work.",
+						_FilePath);
+				}
+			}
+			finally {
+				this.statusbar1.Pop(_SbCtxActivity);
+			}
 
 			// Load file from stable storage.
 			try {

@@ -14,6 +14,8 @@ namespace CvnNote.Gui
 		
 		private global::Gtk.Action closeAction;
 		
+		private global::Gtk.Action RecentAction;
+		
 		private global::Gtk.VBox vbox1;
 		
 		private global::Gtk.MenuBar menubar1;
@@ -56,6 +58,9 @@ namespace CvnNote.Gui
 			this.closeAction = new global::Gtk.Action ("closeAction", global::Mono.Unix.Catalog.GetString ("_Close"), null, "gtk-close");
 			this.closeAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_Close");
 			w1.Add (this.closeAction, null);
+			this.RecentAction = new global::Gtk.Action ("RecentAction", global::Mono.Unix.Catalog.GetString ("Recent"), null, null);
+			this.RecentAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Recent");
+			w1.Add (this.RecentAction, null);
 			this.UIManager.InsertActionGroup (w1, 0);
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "CvnNote.Gui.MainWindow";
@@ -66,7 +71,7 @@ namespace CvnNote.Gui
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='FileAction' action='FileAction'><menuitem name='openAction' action='openAction'/><menuitem name='closeAction' action='closeAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu></menubar></ui>");
+			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='FileAction' action='FileAction'><menuitem name='openAction' action='openAction'/><menu name='RecentAction' action='RecentAction'/><menuitem name='closeAction' action='closeAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu></menubar></ui>");
 			this.menubar1 = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar1")));
 			this.menubar1.Name = "menubar1";
 			this.vbox1.Add (this.menubar1);
