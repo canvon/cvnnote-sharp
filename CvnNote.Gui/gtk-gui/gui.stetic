@@ -35,7 +35,7 @@
       </action>
       <action id="RecentAction">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Recent</property>
+        <property name="Label" translatable="yes">_Recent</property>
         <property name="ShortLabel" translatable="yes">Recent</property>
       </action>
     </action-group>

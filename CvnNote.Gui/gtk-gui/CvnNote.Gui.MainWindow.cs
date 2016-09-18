@@ -58,7 +58,7 @@ namespace CvnNote.Gui
 			this.closeAction = new global::Gtk.Action ("closeAction", global::Mono.Unix.Catalog.GetString ("_Close"), null, "gtk-close");
 			this.closeAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_Close");
 			w1.Add (this.closeAction, null);
-			this.RecentAction = new global::Gtk.Action ("RecentAction", global::Mono.Unix.Catalog.GetString ("Recent"), null, null);
+			this.RecentAction = new global::Gtk.Action ("RecentAction", global::Mono.Unix.Catalog.GetString ("_Recent"), null, null);
 			this.RecentAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Recent");
 			w1.Add (this.RecentAction, null);
 			this.UIManager.InsertActionGroup (w1, 0);
