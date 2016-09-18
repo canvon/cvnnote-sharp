@@ -258,6 +258,15 @@ namespace CvnNote.Gui
 			dialog.AddButton(Stock.Cancel, ResponseType.Cancel);
 			dialog.AddButton(Stock.Open, ResponseType.Ok);
 
+			// Try to start file selection from current file,
+			// if there is one.
+			//
+			// This enables the user to successively open files
+			// from the same directory, e.g., from a collection
+			// of notes files.
+			if (!string.IsNullOrEmpty(_FilePath))
+				dialog.SetFilename(_FilePath);
+
 			int result = dialog.Run();
 			string filePath = dialog.Filename;
 			dialog.Destroy();
