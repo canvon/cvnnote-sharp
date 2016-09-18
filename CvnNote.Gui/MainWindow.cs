@@ -36,6 +36,13 @@ namespace CvnNote.Gui
 				return string.Format("{0}", NotesElement.StartLineNumber);
 			}
 		}
+
+		[TreeNodeValue(Column = 2)]
+		public string TotalLineCount {
+			get {
+				return string.Format("{0}", NotesElement.TotalLineCount);
+			}
+		}
 	}
 
 
@@ -125,6 +132,10 @@ namespace CvnNote.Gui
 			var cellRendererLine = new CellRendererText();
 			cellRendererLine.Alignment = Pango.Alignment.Right;
 			this.nodeviewNotes.AppendColumn("Line", cellRendererLine, "text", 1);
+
+			var cellRendererTotalLines = new CellRendererText();
+			cellRendererTotalLines.Alignment = Pango.Alignment.Right;
+			this.nodeviewNotes.AppendColumn("# Lines", cellRendererTotalLines, "text", 2);
 
 			this.nodeviewNotes.NodeSelection.Changed += NodeviewNotes_NodeSelection_Changed;
 
