@@ -89,6 +89,19 @@ namespace CvnNote.Gui
 			}
 		}
 
+		// (See LoadFile() for comments on this.)
+		private string _RecentApplicationExec = "cvnnote-gui %u";
+		public string RecentApplicationExec {
+			get {
+				return _RecentApplicationExec;
+			}
+			set {
+				_RecentApplicationExec = value;
+				// Probably nothing needs updating, the new setting
+				// will be used on next file open action.
+			}
+		}
+
 		protected Menu RecentMenu = null;
 
 
@@ -323,7 +336,7 @@ namespace CvnNote.Gui
 				// will let us record the recent info at all,
 				// so we make something up here that will be used
 				// when the program would be installed system-wide...
-				data.AppExec = "cvnnote-gui %u";
+				data.AppExec = this.RecentApplicationExec;
 				if (manager.AddFull(_FilePath, data) == false) {
 					// (I, Fabian, wanted to make this an error
 					// that is always somehow reported, but I was told
