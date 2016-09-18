@@ -17,6 +17,8 @@ namespace CvnNote.Gui
 			//       (But where to get the program name argument from...)
 			Application.Init();
 
+			GLib.ExceptionManager.UnhandledException += HandleUnhandledException;
+
 
 			var log = new GLib.Log();
 			var filePaths = new List<string>();
@@ -78,6 +80,41 @@ namespace CvnNote.Gui
 			Application.Run();
 
 			return 0;
+		}
+
+		static void HandleUnhandledException(GLib.UnhandledExceptionArgs args)
+		{
+			var log = new GLib.Log();
+
+			string exObjFullName = args.ExceptionObject.GetType().FullName;
+
+			var ex = args.ExceptionObject as Exception;
+			string exMsg = object.ReferenceEquals(ex, null) ?
+				"(Exception object is not an Exception)" :
+				ex.Message;
+
+			log.WriteLog(null, GLib.LogLevelFlags.Critical,
+				"Caught unhandled exception of type {0}: {1}",
+				exObjFullName, exMsg);
+			Debug.Print("Stack trace:{0}{1}", Environment.NewLine, Environment.StackTrace);
+
+			var dialog = new MessageDialog(
+				null, DialogFlags.Modal, MessageType.Error, ButtonsType.OkCancel,
+				"Caught unhandled exception of type {0}: {1}" +
+				Environment.NewLine + Environment.NewLine +
+				"Terminate? (Hit cancel to try to continue...)",
+				exObjFullName, exMsg);
+			int result = dialog.Run();
+			dialog.Destroy();
+
+			if (result == (int)ResponseType.Ok) {
+				log.WriteLog(null, GLib.LogLevelFlags.Warning, "User decided to terminate the application.");
+				args.ExitApplication = true;
+			}
+			else {
+				log.WriteLog(null, GLib.LogLevelFlags.Warning, "Trying to continue on user request...");
+				args.ExitApplication = false;
+			}
 		}
 	}
 }
