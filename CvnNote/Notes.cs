@@ -10,6 +10,10 @@ namespace CvnNote
 			get;
 		}
 
+		int TotalLineCount {
+			get;
+		}
+
 		string PassiveSummary {
 			get;
 		}
@@ -31,6 +35,11 @@ namespace CvnNote
 					private set;
 				}
 
+				public int TotalLineCount {
+					get;
+					private set;
+				}
+
 				// TODO: Store as DateTime
 				public string Date {
 					get;
@@ -45,6 +54,8 @@ namespace CvnNote
 
 					if (lines.Count != 1)
 						throw new ArgumentException("cvnnote day intro has to be a single line", "lines");
+
+					this.TotalLineCount = lines.Count;
 
 					// TODO: Parse into several fields
 					// TODO: Convert to DateTime
@@ -83,6 +94,11 @@ namespace CvnNote
 					private set;
 				}
 
+				public int TotalLineCount {
+					get;
+					private set;
+				}
+
 				public string TypeInformation {
 					get;
 					private set;
@@ -101,6 +117,8 @@ namespace CvnNote
 
 					if (lines.Count < 1)
 						throw new ArgumentException("cvnnote entry has to start with type information", "lines");
+
+					this.TotalLineCount = lines.Count;
 
 					TypeInformation = lines[0];
 					// TODO: Process rest of data somehow.
@@ -140,6 +158,11 @@ namespace CvnNote
 				private set;
 			}
 
+			public int TotalLineCount {
+				get;
+				private set;
+			}
+
 			public Intro DayIntro {
 				get;
 				private set;
@@ -158,6 +181,13 @@ namespace CvnNote
 
 				if (object.ReferenceEquals(entries, null))
 					throw new ArgumentNullException("entries");
+
+				// Compute total line count as sum over total line counts
+				// of intro and all entries.
+				this.TotalLineCount = intro.TotalLineCount;
+				foreach (Entry entry in entries) {
+					this.TotalLineCount = this.TotalLineCount + entry.TotalLineCount;
+				}
 
 				DayIntro = intro;
 				DayEntries = entries;
@@ -199,6 +229,11 @@ namespace CvnNote
 			}
 		}
 
+		public int TotalLineCount {
+			get;
+			private set;
+		}
+
 		public IList<Day> Days {
 			get;
 			private set;
@@ -209,6 +244,11 @@ namespace CvnNote
 		{
 			if (object.ReferenceEquals(days, null))
 				throw new ArgumentNullException("days");
+
+			this.TotalLineCount = 0;
+			foreach (Day day in days) {
+				this.TotalLineCount = this.TotalLineCount + day.TotalLineCount;
+			}
 
 			Days = days;
 		}
@@ -269,6 +309,8 @@ namespace CvnNote
 				if (lines.Count > 0)
 					throw new FormatException("Unrecognized lines left");
 			}
+
+			this.TotalLineCount = lineNumber;
 		}
 
 

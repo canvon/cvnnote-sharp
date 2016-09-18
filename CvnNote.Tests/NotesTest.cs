@@ -61,5 +61,28 @@ namespace CvnNote.Tests
 			Assert.AreEqual("Type information sw software3, body lines count 0", elem1Children[3].PassiveSummary,
 				"Day 0 child 3 (Notes.Day.Entry, software3)");
 		}
+
+		[Test()]
+		public void TotalLineCountTest()
+		{
+			var notes1 = new Notes(new StringReader(
+				"2016-09-18\ndevelop project A\n\t* Some notes.\n\t* Some more ontes.\n\t* Even more notes.\n" +
+				"sw something\n\tSome notes on that software.\n" +
+				"develop project B\n\tSome notes on another development project.\n"));
+
+			Assert.AreEqual(1, notes1.Days[0].DayIntro.TotalLineCount,
+				"Day 0 intro total line count");
+			Assert.AreEqual(4, notes1.Days[0].DayEntries[0].TotalLineCount,
+				"Entry 0 total line count");
+			Assert.AreEqual(2, notes1.Days[0].DayEntries[1].TotalLineCount,
+				"Entry 1 total line count");
+			Assert.AreEqual(2, notes1.Days[0].DayEntries[2].TotalLineCount,
+				"Entry 2 total line count");
+
+			Assert.AreEqual(9, notes1.Days[0].TotalLineCount,
+				"Day 0 total line count");
+			Assert.AreEqual(9, notes1.TotalLineCount,
+				"Notes total line count");
+		}
 	}
 }
