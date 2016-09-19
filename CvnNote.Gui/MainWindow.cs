@@ -111,6 +111,8 @@ namespace CvnNote.Gui
 
 		protected Menu RecentMenu = null;
 
+		protected SearchDialog NodeSearchDialog = null;
+
 
 		public MainWindow() : base(Gtk.WindowType.Toplevel)
 		{
@@ -138,6 +140,7 @@ namespace CvnNote.Gui
 			this.nodeviewNotes.AppendColumn("# Lines", cellRendererTotalLines, "text", 2);
 
 			this.nodeviewNotes.NodeSelection.Changed += NodeviewNotes_NodeSelection_Changed;
+			this.nodeviewNotes.KeyReleaseEvent += NodeviewNotes_KeyReleaseEvent;
 
 			// Set up recent menu.
 			Debug.Print("[MainWindow] ctor: Searching for 'Recent' menu...");
@@ -464,6 +467,34 @@ namespace CvnNote.Gui
 			// Inform the user about what has been done.
 			this.statusbar1.Push(_SbCtxState,
 				string.Format("Jumped to plaintext line {0}.", node.NotesElement.StartLineNumber));
+		}
+
+		void NodeviewNotes_KeyReleaseEvent(object o, KeyReleaseEventArgs args)
+		{
+			// Ctrl-F for find, or '/' like in a pager in the terminal.
+			if (args.Event.Key == Gdk.Key.slash ||
+			    (args.Event.Key == Gdk.Key.f &&
+			     args.Event.State == Gdk.ModifierType.ControlMask)) {
+				if (object.ReferenceEquals(this.NodeSearchDialog, null)) {
+					// Open up a new search dialog.
+					this.NodeSearchDialog = new SearchDialog();
+					this.NodeSearchDialog.Response += (o2, args2) => {
+						this.NodeSearchDialog.Destroy();
+						this.NodeSearchDialog = null;
+					};
+					this.NodeSearchDialog.Show();
+
+					// Hook up search dialog into node view.
+					this.nodeviewNotes.SearchColumn = 0;
+					this.nodeviewNotes.SearchEntry = this.NodeSearchDialog.EntrySearch;
+				}
+				else {
+					Debug.Print("[MainWindow] NodeviewNotes_KeyReleaseEvent(): " +
+						"Trying to give existing search dialog focus, with time {0}...",
+						args.Event.Time);
+					this.NodeSearchDialog.PresentWithTime(args.Event.Time);
+				}
+			}
 		}
 	}
 }
