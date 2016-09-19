@@ -50,7 +50,7 @@
         <child>
           <widget class="Gtk.MenuBar" id="menubar1">
             <property name="MemberName" />
-            <node name="__gtksharp_182_Stetic_Editor_ActionMenuBar" type="Menubar">
+            <node name="menubar1" type="Menubar">
               <node type="Menu" action="FileAction">
                 <node type="Menuitem" action="openAction" />
                 <node type="Menu" action="RecentAction" />
@@ -71,7 +71,7 @@
           <widget class="Gtk.Toolbar" id="toolbar1">
             <property name="MemberName" />
             <property name="ShowArrow">False</property>
-            <node name="__gtksharp_198_Stetic_Editor_ActionToolbar" type="Toolbar">
+            <node name="toolbar1" type="Toolbar">
               <node type="Toolitem" action="quitAction" />
               <node type="Toolitem" action="closeAction" />
               <node type="Toolitem" action="openAction" />
@@ -185,12 +185,13 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Dialog" id="CvnNote.Gui.SearchDialog" design-size="400 300">
+  <widget class="Gtk.Dialog" id="CvnNote.Gui.SearchDialog" design-size="400 88">
     <property name="MemberName" />
-    <property name="Title" translatable="yes">Search</property>
+    <property name="Title" translatable="yes">Search - cvnnote-sharp GUI</property>
     <property name="WindowPosition">CenterOnParent</property>
     <property name="Decorated">False</property>
     <property name="DestroyWithParent">True</property>
+    <property name="SkipPagerHint">True</property>
     <property name="SkipTaskbarHint">True</property>
     <property name="Buttons">2</property>
     <property name="HelpButton">False</property>

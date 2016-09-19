@@ -19,10 +19,11 @@ namespace CvnNote.Gui
 			global::Stetic.Gui.Initialize (this);
 			// Widget CvnNote.Gui.SearchDialog
 			this.Name = "CvnNote.Gui.SearchDialog";
-			this.Title = global::Mono.Unix.Catalog.GetString ("Search");
+			this.Title = global::Mono.Unix.Catalog.GetString ("Search - cvnnote-sharp GUI");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 			this.Decorated = false;
 			this.DestroyWithParent = true;
+			this.SkipPagerHint = true;
 			this.SkipTaskbarHint = true;
 			// Internal child CvnNote.Gui.SearchDialog.VBox
 			global::Gtk.VBox w1 = this.VBox;
@@ -90,7 +91,7 @@ namespace CvnNote.Gui
 				this.Child.ShowAll ();
 			}
 			this.DefaultWidth = 400;
-			this.DefaultHeight = 300;
+			this.DefaultHeight = 88;
 			this.Show ();
 		}
 	}
