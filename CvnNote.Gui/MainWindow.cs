@@ -211,6 +211,13 @@ namespace CvnNote.Gui
 			a.RetVal = true;
 		}
 
+		protected override bool OnConfigureEvent(Gdk.EventConfigure evnt)
+		{
+			base.OnConfigureEvent(evnt);
+			PositionSearchDialog();
+			return true;
+		}
+
 		public void UpdateRecentMenu()
 		{
 			// Make sure we know about the recent menu.
@@ -483,34 +490,7 @@ namespace CvnNote.Gui
 						this.NodeSearchDialog = null;
 					};
 					// Position search dialog when it has completely started up.
-					GLib.Idle.Add(() => {
-						// Information about search dialog:
-						int dialogWidth, dialogHeight;
-						this.NodeSearchDialog.GetSize(out dialogWidth, out dialogHeight);
-
-						// Information about main window:
-						int winX, winY;
-						this.GetPosition(out winX, out winY);
-
-						int winOriginX, winOriginY;
-						this.GdkWindow.GetOrigin(out winOriginX, out winOriginY);
-
-						int winRootOriginX, winRootOriginY;
-						this.GdkWindow.GetRootOrigin(out winRootOriginX, out winRootOriginY);
-
-						// Information about NodeView:
-						int viewX, viewY, viewWidth, viewHeight, viewDepth;
-						this.nodeviewNotes.GdkWindow.GetGeometry(
-							out viewX, out viewY, out viewWidth, out viewHeight, out viewDepth);
-
-						// Position search dialog in the top-right corner of the NodeView.
-						this.NodeSearchDialog.Move(
-							winX + (winOriginX - winRootOriginX) + viewX + viewWidth - dialogWidth,
-							winY + (winOriginY - winRootOriginY) + viewY);
-
-						// Don't call this idle handler again.
-						return false;
-					});
+					GLib.Idle.Add(PositionSearchDialog);
 					this.NodeSearchDialog.Show();
 
 					// Hook up search dialog into node view.
@@ -524,6 +504,41 @@ namespace CvnNote.Gui
 					this.NodeSearchDialog.PresentWithTime(args.Event.Time);
 				}
 			}
+		}
+
+		bool PositionSearchDialog()
+		{
+			// If we're not dealing with a search dialog currently, ignore.
+			if (object.ReferenceEquals(this.NodeSearchDialog, null))
+				// Don't call this idle handler again.
+				return false;
+
+			// Information about search dialog:
+			int dialogWidth, dialogHeight;
+			this.NodeSearchDialog.GetSize(out dialogWidth, out dialogHeight);
+
+			// Information about main window:
+			int winX, winY;
+			this.GetPosition(out winX, out winY);
+
+			int winOriginX, winOriginY;
+			this.GdkWindow.GetOrigin(out winOriginX, out winOriginY);
+
+			int winRootOriginX, winRootOriginY;
+			this.GdkWindow.GetRootOrigin(out winRootOriginX, out winRootOriginY);
+
+			// Information about NodeView:
+			int viewX, viewY, viewWidth, viewHeight, viewDepth;
+			this.nodeviewNotes.GdkWindow.GetGeometry(
+				out viewX, out viewY, out viewWidth, out viewHeight, out viewDepth);
+
+			// Position search dialog in the top-right corner of the NodeView.
+			this.NodeSearchDialog.Move(
+				winX + (winOriginX - winRootOriginX) + viewX + viewWidth - dialogWidth,
+				winY + (winOriginY - winRootOriginY) + viewY);
+
+			// Don't call this idle handler again.
+			return false;
 		}
 	}
 }
