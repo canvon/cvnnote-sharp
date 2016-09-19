@@ -5,7 +5,8 @@ namespace CvnNote.Gui
 {
 	public partial class SearchDialog : Gtk.Dialog
 	{
-		public SearchDialog()
+		public SearchDialog(Window parent)
+			: base("Search - cvnnote-sharp GUI", parent, DialogFlags.DestroyWithParent)
 		{
 			this.Build();
 		}
