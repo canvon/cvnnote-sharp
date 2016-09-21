@@ -16,7 +16,7 @@ namespace CvnNote.Tests
 
 			Assert.Greater(notes1.Days.Count, 0,
 				"Days found in parse");
-			Assert.AreEqual("2016-09-15", notes1.Days[0].DayIntro.Date,
+			Assert.AreEqual("2016-09-15", notes1.Days[0].DayIntro.DateFormatted,
 				"Day intro date");
 			Assert.AreEqual(2, notes1.Days[0].DayEntries.Count,
 				"Day entries");
@@ -52,7 +52,7 @@ namespace CvnNote.Tests
 			IList<INotesElement> elem1Children = elem1.Children;
 			Assert.AreEqual(4, elem1Children.Count,
 				"Day 0 children");
-			Assert.AreEqual("Date 2016-09-15", elem1Children[0].PassiveSummary,
+			Assert.AreEqual("Date 15 September 2016, chapter 1, comment: (none)", elem1Children[0].PassiveSummary,
 				"Day 0 child 0 (Notes.Day.Intro)");
 			Assert.AreEqual("Type information sw software1, body lines count 1", elem1Children[1].PassiveSummary,
 				"Day 0 child 1 (Notes.Day.Entry, software1)");
