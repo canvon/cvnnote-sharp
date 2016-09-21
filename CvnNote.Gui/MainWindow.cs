@@ -58,7 +58,7 @@ namespace CvnNote.Gui
 					return this.NotesElement.PassiveSummary;
 				case NotesElementTreeNodeType.ParseIssue:
 					// TODO: Include location information?
-					return this.ParseIssue.Message;
+					return string.Format("{0}: {1}", this.ParseIssue.Severity, this.ParseIssue.Message);
 				default:
 					throw new InvalidOperationException(
 						string.Format("Invalid node type {0}", this.NodeType));
@@ -110,6 +110,9 @@ namespace CvnNote.Gui
 			get {
 				switch (this.NodeType) {
 				case NotesElementTreeNodeType.NotesElement:
+					if (!object.ReferenceEquals(this.NotesElement.ParseIssues, null) &&
+					    this.NotesElement.ParseIssues.Count > 0)
+						return "red";
 					return "black";
 				case NotesElementTreeNodeType.ParseIssue:
 					return "red";
@@ -579,6 +582,7 @@ namespace CvnNote.Gui
 			switch (node.NodeType) {
 			case NotesElementTreeNodeType.NotesElement:
 				TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
+				buf.SelectRange(iter, iter);
 				this.textviewText.ScrollToIter(iter, 0, true, 0, 0.5);
 
 				// Inform the user about what has been done.
