@@ -67,6 +67,11 @@ namespace CvnNote
 				}
 
 
+				public bool IsSkip {
+					get;
+					private set;
+				}
+
 				public DateTime? Date {
 					get;
 					private set;
@@ -76,6 +81,8 @@ namespace CvnNote
 
 				public string DateFormatted {
 					get {
+						if (this.IsSkip)
+							return "[...]";
 						return this.Date.HasValue ?
 							string.Format("{0:" + DateFormat + "}", this.Date.Value) :
 							"(date missing)";
@@ -136,6 +143,7 @@ namespace CvnNote
 					// Try parsing the input. From here on, errors get saved
 					// but should not produce an exception.
 
+					this.IsSkip = false;
 					this.Date = null;
 					this.Chapter = 0;
 					this.Comment = null;
@@ -175,7 +183,10 @@ namespace CvnNote
 
 					field = fields[0];
 					try {
-						this.Date = DateTime.ParseExact(field, DateFormat, null);
+						if (field == "[...]")
+							this.IsSkip = true;
+						else
+							this.Date = DateTime.ParseExact(field, DateFormat, null);
 					}
 					catch (Exception ex) {
 						AddParseIssue(new ParseIssue(
@@ -256,7 +267,9 @@ namespace CvnNote
 
 				public string PassiveSummary {
 					get {
-						return string.Format("Date {0}, chapter {1}, comment: {2}",
+						string labelling = this.IsSkip ? "Skip" : "Date {0}";
+
+						return string.Format(labelling + ", chapter {1}, comment: {2}",
 							this.Date.HasValue ? string.Format("{0:D}", this.Date) : "(missing)",
 							this.Chapter,
 							this.Comment ?? "(none)");
