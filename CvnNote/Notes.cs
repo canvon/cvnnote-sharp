@@ -21,6 +21,14 @@ namespace CvnNote
 		IList<INotesElement> Children {
 			get;
 		}
+
+		IList<ParseIssue> ParseIssues {
+			get;
+		}
+
+		int TotalParseIssueCount {
+			get;
+		}
 	}
 
 
@@ -40,6 +48,25 @@ namespace CvnNote
 					private set;
 				}
 
+				private IList<ParseIssue> _ParseIssues = new List<ParseIssue>();
+				public IList<ParseIssue> ParseIssues {
+					get {
+						return _ParseIssues;
+					}
+				}
+
+				private void AddParseIssue(ParseIssue issue)
+				{
+					_ParseIssues.Add(issue);
+					TotalParseIssueCount = TotalParseIssueCount + 1;
+				}
+
+				public int TotalParseIssueCount {
+					get;
+					private set;
+				}
+
+
 				// TODO: Store as DateTime
 				public string Date {
 					get;
@@ -47,29 +74,55 @@ namespace CvnNote
 				}
 
 
-				public Intro(IList<string> lines)
+				public Intro(IList<string> lines, int startLineNumber)
 				{
+					// Check arguments for formal validity.
+
 					if (object.ReferenceEquals(lines, null))
 						throw new ArgumentNullException("lines");
 
-					if (lines.Count != 1)
-						throw new ArgumentException("cvnnote day intro has to be a single line", "lines");
-
-					this.TotalLineCount = lines.Count;
-
-					// TODO: Parse into several fields
-					// TODO: Convert to DateTime
-					Date = lines[0];
-				}
-
-				public Intro(IList<string> lines, int startLineNumber)
-					: this(lines)
-				{
 					if (startLineNumber < 0)
 						throw new ArgumentOutOfRangeException(
 							"startLineNumber", startLineNumber, "Start line number has to be non-negative");
 
 					this.StartLineNumber = startLineNumber;
+					this.TotalLineCount = lines.Count;
+
+
+					// Try parsing the input. From here on, errors get saved
+					// but should not produce an exception.
+
+					if (lines.Count < 1) {
+						AddParseIssue(new ParseIssue(
+							this.StartLineNumber, 0, this.StartLineNumber, 0,
+							ParseIssueSeverity.Error,
+							"Day intro can't be empty"));
+						this.Date = null;
+						return;
+					}
+					else if (lines.Count > 1) {
+						int startLine = 0, startCharacter = 0;
+						int endLine = 0, endCharacter = 0;
+						if (this.StartLineNumber > 0) {
+							startLine = this.StartLineNumber;
+							endLine = this.StartLineNumber + lines.Count;
+						}
+						AddParseIssue(new ParseIssue(
+							startLine, startCharacter,
+							endLine, endCharacter,
+							ParseIssueSeverity.Error,
+							"Day intro has to be a single line"));
+						// Go on and try to parse the first line all the same.
+					}
+
+					// TODO: Parse into several fields
+					// TODO: Convert to DateTime
+					this.Date = lines[0];
+				}
+
+				public Intro(IList<string> lines)
+					: this(lines, 0)
+				{
 				}
 
 
@@ -99,6 +152,25 @@ namespace CvnNote
 					private set;
 				}
 
+				private IList<ParseIssue> _ParseIssues = new List<ParseIssue>();
+				public IList<ParseIssue> ParseIssues {
+					get {
+						return _ParseIssues;
+					}
+				}
+
+				private void AddParseIssue(ParseIssue issue)
+				{
+					_ParseIssues.Add(issue);
+					TotalParseIssueCount = TotalParseIssueCount + 1;
+				}
+
+				public int TotalParseIssueCount {
+					get;
+					private set;
+				}
+
+
 				public string TypeInformation {
 					get;
 					private set;
@@ -110,29 +182,58 @@ namespace CvnNote
 				}
 
 
-				public Entry(IList<string> lines)
+				public Entry(IList<string> lines, int startLineNumber)
 				{
+					// Check arguments for formal validity.
+
 					if (object.ReferenceEquals(lines, null))
 						throw new ArgumentNullException("lines");
 
-					if (lines.Count < 1)
-						throw new ArgumentException("cvnnote entry has to start with type information", "lines");
-
-					this.TotalLineCount = lines.Count;
-
-					TypeInformation = lines[0];
-					// TODO: Process rest of data somehow.
-					BodyLinesCount = lines.Count - 1;
-				}
-
-				public Entry(IList<string> lines, int startLineNumber)
-					: this(lines)
-				{
 					if (startLineNumber < 0)
 						throw new ArgumentOutOfRangeException(
 							"startLineNumber", startLineNumber, "Start line number has to be non-negative");
 
 					this.StartLineNumber = startLineNumber;
+					this.TotalLineCount = lines.Count;
+
+
+					// Try parsing the input. From here on, errors get saved
+					// but should not produce an exception.
+
+					if (lines.Count < 1) {
+						AddParseIssue(new ParseIssue(
+							this.StartLineNumber, 0, this.StartLineNumber, 0,
+							ParseIssueSeverity.Error,
+							"Day entry can't be empty"));
+						this.TypeInformation = null;
+						this.BodyLinesCount = 0;
+						return;
+					}
+					else if (lines[0][0] == '\t' || lines[0][0] == ' ') {
+						int startLine = 0, endLine = 0;
+						// If line information is available, ...
+						if (this.StartLineNumber > 0) {
+							// Mark the whole first line as erroneous.
+							startLine = this.StartLineNumber;
+							endLine = this.StartLineNumber + 1;
+						}
+						AddParseIssue(new ParseIssue(
+							startLine, 0, endLine, 0,
+							ParseIssueSeverity.Error,
+							"Day entry has to start with type information"));
+						this.TypeInformation = null;
+						this.BodyLinesCount = 0;
+						return;
+					}
+
+					this.TypeInformation = lines[0];
+					// TODO: Process rest of data somehow.
+					BodyLinesCount = lines.Count - 1;
+				}
+
+				public Entry(IList<string> lines)
+					: this(lines, 0)
+				{
 				}
 
 
@@ -163,6 +264,25 @@ namespace CvnNote
 				private set;
 			}
 
+			private IList<ParseIssue> _ParseIssues = new List<ParseIssue>();
+			public IList<ParseIssue> ParseIssues {
+				get {
+					return _ParseIssues;
+				}
+			}
+
+			private void AddParseIssue(ParseIssue issue)
+			{
+				_ParseIssues.Add(issue);
+				TotalParseIssueCount = TotalParseIssueCount + 1;
+			}
+
+			public int TotalParseIssueCount {
+				get;
+				private set;
+			}
+
+
 			public Intro DayIntro {
 				get;
 				private set;
@@ -174,7 +294,7 @@ namespace CvnNote
 			}
 
 
-			public Day(Intro intro, IList<Entry> entries)
+			public Day(Intro intro, IList<Entry> entries, int startLineNumber)
 			{
 				if (object.ReferenceEquals(intro, null))
 					throw new ArgumentNullException("intro");
@@ -182,29 +302,34 @@ namespace CvnNote
 				if (object.ReferenceEquals(entries, null))
 					throw new ArgumentNullException("entries");
 
-				// Compute total line count as sum over total line counts
-				// of intro and all entries.
-				this.TotalLineCount = intro.TotalLineCount;
-				foreach (Entry entry in entries) {
-					this.TotalLineCount = this.TotalLineCount + entry.TotalLineCount;
-				}
-
-				DayIntro = intro;
-				DayEntries = entries;
-			}
-
-			public Day(Intro intro, IList<Entry> entries, int startLineNumber)
-				: this(intro, entries)
-			{
 				if (startLineNumber < 0)
 					throw new ArgumentOutOfRangeException(
 						"startLineNumber", startLineNumber, "Start line number has to be non-negative");
 
 				this.StartLineNumber = startLineNumber;
+
+				// Compute total line/parse_issue count as sum over total line/parse_issue counts
+				// of intro and all entries.
+				this.TotalLineCount = intro.TotalLineCount;
+				this.TotalParseIssueCount = intro.TotalParseIssueCount;
+				foreach (Entry entry in entries) {
+					this.TotalLineCount = this.TotalLineCount + entry.TotalLineCount;
+					this.TotalParseIssueCount = this.TotalParseIssueCount + entry.TotalParseIssueCount;
+				}
+
+				this.DayIntro = intro;
+				this.DayEntries = entries;
+			}
+
+			public Day(Intro intro, IList<Entry> entries)
+				: this(intro, entries, 0)
+			{
 			}
 
 			public Day(IList<string> lines, int startLineNumber)
 			{
+				// Check arguments for formal validity.
+
 				if (object.ReferenceEquals(lines, null))
 					throw new ArgumentNullException("lines");
 
@@ -214,6 +339,10 @@ namespace CvnNote
 
 				this.StartLineNumber = startLineNumber;
 				this.TotalLineCount = lines.Count;
+
+
+				// Try parsing the input. From here on, errors get saved
+				// but should not produce an exception.
 
 				this.DayIntro = null;
 				this.DayEntries = new List<Entry>();
@@ -225,15 +354,20 @@ namespace CvnNote
 					subLineNumber++;
 
 					if (line.Length == 0) {
+						// This is a formal error of the previous parser,
+						// so throw an exception contrary to what was said above.
 						throw new FormatException("Invalid empty line in day parser");
 					}
 					// Split on non-indented lines.
 					else if (subLines.Count > 0 && line[0] != '\t' && line[0] != ' ') {
 						if (this.DayIntro == null) {
 							this.DayIntro = new Intro(subLines, startLineNumber + subStartLineNumber - 1);
+							this.TotalParseIssueCount = this.TotalParseIssueCount + this.DayIntro.TotalParseIssueCount;
 						}
 						else {
-							this.DayEntries.Add(new Entry(subLines, startLineNumber + subStartLineNumber - 1));
+							var entry = new Entry(subLines, startLineNumber + subStartLineNumber - 1);
+							this.DayEntries.Add(entry);
+							this.TotalParseIssueCount = this.TotalParseIssueCount + entry.TotalParseIssueCount;
 						}
 
 						// Prepare for more data. (Make sure to keep current line.)
@@ -247,29 +381,42 @@ namespace CvnNote
 
 				// Potentially add a final intro/entry.
 				if (subLines.Count > 0) {
-					if (this.DayIntro == null)
+					if (this.DayIntro == null) {
 						this.DayIntro = new Intro(subLines, startLineNumber + subStartLineNumber - 1);
-					else
-						this.DayEntries.Add(new Entry(subLines, startLineNumber + subStartLineNumber - 1));
+						this.TotalParseIssueCount = this.TotalParseIssueCount + this.DayIntro.TotalParseIssueCount;
+					}
+					else {
+						var entry = new Entry(subLines, startLineNumber + subStartLineNumber - 1);
+						this.DayEntries.Add(entry);
+						this.TotalParseIssueCount = this.TotalParseIssueCount + entry.TotalParseIssueCount;
+					}
 				}
 
 				// Post-parse correctness verification:
-				if (object.ReferenceEquals(this.DayIntro, null))
-					throw new FormatException("Day intro not found");
+				if (object.ReferenceEquals(this.DayIntro, null)) {
+					AddParseIssue(new ParseIssue(
+						startLineNumber, 0, startLineNumber + subStartLineNumber, 0,
+						ParseIssueSeverity.Error,
+						"Day intro not found"));
+				}
 			}
 
 
 			public string PassiveSummary {
 				get {
-					return string.Format("{0}: {1} entries", DayIntro.Date, DayEntries.Count);
+					return string.Format(
+						"{0}: {1} entries",
+						this.DayIntro != null ? this.DayIntro.Date : "(Unknown)",
+						this.DayEntries.Count);
 				}
 			}
 
 			public IList<INotesElement> Children {
 				get {
 					var ret = new List<INotesElement>();
-					ret.Add(DayIntro);
-					ret.AddRange(DayEntries);
+					if (!object.ReferenceEquals(this.DayIntro, null))
+						ret.Add(this.DayIntro);
+					ret.AddRange(this.DayEntries);
 					return ret;
 				}
 			}
@@ -289,6 +436,25 @@ namespace CvnNote
 			private set;
 		}
 
+		private IList<ParseIssue> _ParseIssues = new List<ParseIssue>();
+		public IList<ParseIssue> ParseIssues {
+			get {
+				return _ParseIssues;
+			}
+		}
+
+		private void AddParseIssue(ParseIssue issue)
+		{
+			_ParseIssues.Add(issue);
+			TotalParseIssueCount = TotalParseIssueCount + 1;
+		}
+
+		public int TotalParseIssueCount {
+			get;
+			private set;
+		}
+
+
 		public IList<Day> Days {
 			get;
 			private set;
@@ -301,11 +467,13 @@ namespace CvnNote
 				throw new ArgumentNullException("days");
 
 			this.TotalLineCount = 0;
+			this.TotalParseIssueCount = 0;
 			foreach (Day day in days) {
 				this.TotalLineCount = this.TotalLineCount + day.TotalLineCount;
+				this.TotalParseIssueCount = this.TotalParseIssueCount + day.TotalParseIssueCount;
 			}
 
-			Days = days;
+			this.Days = days;
 		}
 
 		public Notes(TextReader reader)
@@ -323,8 +491,11 @@ namespace CvnNote
 
 				// Split on empty lines.
 				if (line.Length == 0) {
-					if (lines.Count > 0)
-						this.Days.Add(new Day(lines, startLineNumber));
+					if (lines.Count > 0) {
+						var day = new Day(lines, startLineNumber);
+						this.Days.Add(day);
+						this.TotalParseIssueCount += this.TotalParseIssueCount + day.TotalParseIssueCount;
+					}
 
 					// Prepare for more data.
 					// (But skip current line.)
@@ -337,8 +508,11 @@ namespace CvnNote
 			}
 
 			// Potentially add a final Day.
-			if (lines.Count > 0)
-				this.Days.Add(new Day(lines, startLineNumber));
+			if (lines.Count > 0) {
+				var day = new Day(lines, startLineNumber);
+				this.Days.Add(day);
+				this.TotalParseIssueCount += this.TotalParseIssueCount + day.TotalParseIssueCount;
+			}
 
 			this.TotalLineCount = lineNumber;
 		}

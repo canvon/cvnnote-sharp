@@ -52,36 +52,44 @@ namespace CvnNote
 		}
 
 		/// <summary>
-		/// Gets the start line of where the parse issue is located.
+		/// Gets the start line, inclusive, of where the parse issue is located.
+		/// First line in the input is 1. If 0, this means not known / not set.
 		/// </summary>
-		/// <value>The start line.</value>
+		/// <value>The start line, inclusive.</value>
 		public int StartLine {
 			get;
 			private set;
 		}
 
 		/// <summary>
-		/// Gets the start character of where the parse issue is located.
+		/// Gets the start character, inclusive, of where the parse issue is located.
+		/// First character in a line is 1. If 0, this means not known/ not set.
 		/// </summary>
-		/// <value>The start character.</value>
+		/// <value>The start character, inclusive.</value>
 		public int StartCharacter {
 			get;
 			private set;
 		}
 
 		/// <summary>
-		/// Gets the end line of where the parse issue is located.
+		/// Gets the end line, exclusive, of where the parse issue is located.
+		/// Please note that
+		/// <c>StartLine == EndLine &amp;&amp; StartCharacter == EndCharacter</c>
+		/// means a length of zero (0).
 		/// </summary>
-		/// <value>The end line.</value>
+		/// <value>The end line, exclusive.</value>
 		public int EndLine {
 			get;
 			private set;
 		}
 
 		/// <summary>
-		/// Gets the end character of where the parse issue is located.
+		/// Gets the end character, exclusive, of where the parse issue is located.
+		/// Please note that
+		/// <c>StartLine == EndLine &amp;&amp; StartCharacter == EndCharacter</c>
+		/// means a length of zero (0).
 		/// </summary>
-		/// <value>The end character.</value>
+		/// <value>The end character, exclusive.</value>
 		public int EndCharacter {
 			get;
 			private set;
