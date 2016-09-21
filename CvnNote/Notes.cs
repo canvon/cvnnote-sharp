@@ -618,6 +618,7 @@ namespace CvnNote
 			IList<string> lines = new List<string>();
 			string line;
 			int lineNumber = 0, startLineNumber = 1;
+			this.TotalParseIssueCount = 0;
 
 			while ((line = reader.ReadLine()) != null) {
 				lineNumber++;
@@ -627,7 +628,7 @@ namespace CvnNote
 					if (lines.Count > 0) {
 						var day = new Day(lines, startLineNumber);
 						this.Days.Add(day);
-						this.TotalParseIssueCount += this.TotalParseIssueCount + day.TotalParseIssueCount;
+						this.TotalParseIssueCount = this.TotalParseIssueCount + day.TotalParseIssueCount;
 					}
 
 					// Prepare for more data.
@@ -644,7 +645,7 @@ namespace CvnNote
 			if (lines.Count > 0) {
 				var day = new Day(lines, startLineNumber);
 				this.Days.Add(day);
-				this.TotalParseIssueCount += this.TotalParseIssueCount + day.TotalParseIssueCount;
+				this.TotalParseIssueCount = this.TotalParseIssueCount + day.TotalParseIssueCount;
 			}
 
 			this.TotalLineCount = lineNumber;
