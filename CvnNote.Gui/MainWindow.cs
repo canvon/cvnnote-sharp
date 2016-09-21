@@ -132,7 +132,7 @@ namespace CvnNote.Gui
 						return String.Empty;
 					return string.Format("{0}", this.NotesElement.TotalParseIssueCount);
 				default:
-					return String.Empty;
+					return "<-";
 				}
 			}
 		}
