@@ -6,9 +6,24 @@ using Gtk;
 
 namespace CvnNote.Gui
 {
+	public enum NotesElementTreeNodeType {
+		NotesElement,
+		ParseIssue,
+	}
+
 	public class NotesElementTreeNode : TreeNode
 	{
+		public NotesElementTreeNodeType NodeType {
+			get;
+			private set;
+		}
+
 		public INotesElement NotesElement {
+			get;
+			private set;
+		}
+
+		public ParseIssue ParseIssue {
 			get;
 			private set;
 		}
@@ -19,28 +34,103 @@ namespace CvnNote.Gui
 			if (object.ReferenceEquals(notesElement, null))
 				throw new ArgumentNullException("notesElement");
 
+			this.NodeType = NotesElementTreeNodeType.NotesElement;
 			this.NotesElement = notesElement;
+			this.ParseIssue = null;
+		}
+
+		public NotesElementTreeNode(ParseIssue parseIssue)
+		{
+			if (object.ReferenceEquals(parseIssue, null))
+				throw new ArgumentNullException("parseIssue");
+
+			this.NodeType = NotesElementTreeNodeType.ParseIssue;
+			this.NotesElement = null;
+			this.ParseIssue = parseIssue;
 		}
 
 
 		[TreeNodeValue(Column = 0)]
 		public string PassiveSummary {
 			get {
-				return NotesElement.PassiveSummary;
+				switch (this.NodeType) {
+				case NotesElementTreeNodeType.NotesElement:
+					return this.NotesElement.PassiveSummary;
+				case NotesElementTreeNodeType.ParseIssue:
+					// TODO: Include location information?
+					return this.ParseIssue.Message;
+				default:
+					throw new InvalidOperationException(
+						string.Format("Invalid node type {0}", this.NodeType));
+				}
 			}
 		}
 
 		[TreeNodeValue(Column = 1)]
 		public string StartLineNumber {
 			get {
-				return string.Format("{0}", NotesElement.StartLineNumber);
+				switch (this.NodeType) {
+				case NotesElementTreeNodeType.NotesElement:
+					return string.Format("{0}", this.NotesElement.StartLineNumber);
+				case NotesElementTreeNodeType.ParseIssue:
+					if (this.ParseIssue.StartLine == 0)
+						return String.Empty;
+					return string.Format(
+						"{0}-{1}",
+						this.ParseIssue.StartLine,
+						this.ParseIssue.EndLine);
+				default:
+					throw new InvalidOperationException(
+						string.Format("Invalid node type {0}", this.NodeType));
+				}
 			}
 		}
 
 		[TreeNodeValue(Column = 2)]
 		public string TotalLineCount {
 			get {
-				return string.Format("{0}", NotesElement.TotalLineCount);
+				switch (this.NodeType) {
+				case NotesElementTreeNodeType.NotesElement:
+					return string.Format("{0}", NotesElement.TotalLineCount);
+				case NotesElementTreeNodeType.ParseIssue:
+					int? lineCount = this.ParseIssue.LineCount;
+					if (lineCount.HasValue)
+						return string.Format("{0}", lineCount.Value);
+					else
+						return String.Empty;  // "Not applicable"
+				default:
+					throw new InvalidOperationException(
+						string.Format("Invalid node type {0}", this.NodeType));
+				}
+			}
+		}
+
+		[TreeNodeValue(Column = 3)]
+		public string Color {
+			get {
+				switch (this.NodeType) {
+				case NotesElementTreeNodeType.NotesElement:
+					return "black";
+				case NotesElementTreeNodeType.ParseIssue:
+					return "red";
+				default:
+					throw new InvalidOperationException(
+						string.Format("Invalid node type {0}", this.NodeType));
+				}
+			}
+		}
+
+		[TreeNodeValue(Column = 4)]
+		public string NumIssues {
+			get {
+				switch (this.NodeType) {
+				case NotesElementTreeNodeType.NotesElement:
+					if (this.NotesElement.TotalParseIssueCount == 0)
+						return String.Empty;
+					return string.Format("{0}", this.NotesElement.TotalParseIssueCount);
+				default:
+					return String.Empty;
+				}
 			}
 		}
 	}
@@ -129,15 +219,20 @@ namespace CvnNote.Gui
 			// Set up NodeView.
 			this.nodeviewNotes.NodeStore = new NodeStore(typeof(NotesElementTreeNode));
 
-			this.nodeviewNotes.AppendColumn("Summary", new CellRendererText(), "text", 0);
+			this.nodeviewNotes.AppendColumn("Summary", new CellRendererText(), "text", 0, "foreground", 3);
 
 			var cellRendererLine = new CellRendererText();
 			cellRendererLine.Alignment = Pango.Alignment.Right;
-			this.nodeviewNotes.AppendColumn("Line", cellRendererLine, "text", 1);
+			this.nodeviewNotes.AppendColumn("Line", cellRendererLine, "text", 1, "foreground", 3);
 
 			var cellRendererTotalLines = new CellRendererText();
 			cellRendererTotalLines.Alignment = Pango.Alignment.Right;
-			this.nodeviewNotes.AppendColumn("# Lines", cellRendererTotalLines, "text", 2);
+			this.nodeviewNotes.AppendColumn("# Lines", cellRendererTotalLines, "text", 2, "foreground", 3);
+
+			var cellRendererParseIssues = new CellRendererText();
+			cellRendererParseIssues.Alignment = Pango.Alignment.Right;
+			cellRendererParseIssues.Foreground = "red";
+			this.nodeviewNotes.AppendColumn("# Issues", cellRendererParseIssues, "text", 4);
 
 			this.nodeviewNotes.NodeSelection.Changed += NodeviewNotes_NodeSelection_Changed;
 			this.nodeviewNotes.KeyReleaseEvent += NodeviewNotes_KeyReleaseEvent;
@@ -440,14 +535,27 @@ namespace CvnNote.Gui
 
 			var node = new NotesElementTreeNode(tree);
 
+			// Add node as child of the given parent, or as root note if none given.
 			if (object.ReferenceEquals(parentNode, null))
 				this.nodeviewNotes.NodeStore.AddNode(node);
 			else
 				parentNode.AddChild(node);
 
+			// Add potential parsing issues as children to the node.
+			IList<ParseIssue> issues = tree.ParseIssues;
+			if (issues != null) {
+				foreach (ParseIssue issue in issues) {
+					// Flat (no sub-issues), we can do this without recursion.
+					node.AddChild(new NotesElementTreeNode(issue));
+				}
+			}
+
+			// Add notes element children as children to the node.
 			IList<INotesElement> childs = tree.Children;
 			if (childs != null) {
 				foreach (INotesElement child in childs) {
+					// Do this recursively, as the notes element child
+					// can contain further childs as well.
 					AddNotesTree(child, node);
 				}
 			}
@@ -468,12 +576,59 @@ namespace CvnNote.Gui
 
 			// Scroll TextView to associated position in the text.
 			TextBuffer buf = this.textviewText.Buffer;
-			TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
-			this.textviewText.ScrollToIter(iter, 0, true, 0, 0.5);
+			switch (node.NodeType) {
+			case NotesElementTreeNodeType.NotesElement:
+				TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
+				this.textviewText.ScrollToIter(iter, 0, true, 0, 0.5);
 
-			// Inform the user about what has been done.
-			this.statusbar1.Push(_SbCtxState,
-				string.Format("Jumped to plaintext line {0}.", node.NotesElement.StartLineNumber));
+				// Inform the user about what has been done.
+				this.statusbar1.Push(_SbCtxState,
+					string.Format("Jumped to plaintext line {0}.", node.NotesElement.StartLineNumber));
+
+				break;
+			case NotesElementTreeNodeType.ParseIssue:
+				if (node.ParseIssue.StartLine < 1) {
+					this.statusbar1.Push(_SbCtxState, "Can't jump to parse issue location as none is known.");
+					break;
+				}
+
+				TextIter start, end;
+				string locStr;
+				if (node.ParseIssue.StartCharacter > 0 &&
+				    node.ParseIssue.EndCharacter > 0) {
+					start = buf.GetIterAtLineOffset(
+						node.ParseIssue.StartLine - 1,
+						node.ParseIssue.StartCharacter - 1);
+					end = buf.GetIterAtLineOffset(
+						node.ParseIssue.EndLine - 1,
+						node.ParseIssue.EndCharacter - 1);
+					locStr = string.Format("({0},{1})-({2},{3})",
+						node.ParseIssue.StartLine,
+						node.ParseIssue.StartCharacter,
+						node.ParseIssue.EndLine,
+						node.ParseIssue.EndCharacter);
+				}
+				else {
+					start = buf.GetIterAtLine(node.ParseIssue.StartLine - 1);
+					end = buf.GetIterAtLine(node.ParseIssue.EndLine - 1);
+					locStr = string.Format("line {0} to {1} (exclusive)",
+						node.ParseIssue.StartLine,
+						node.ParseIssue.EndLine);
+				}
+				buf.SelectRange(start, end);
+				this.textviewText.ScrollToIter(start, 0, true, 0, 0.5);
+
+				// Inform the user about what has been done.
+				// TODO: More detail? Would need preparing in the previous code part.
+				this.statusbar1.Push(_SbCtxState,
+					string.Format("Marked parse issue location at {0}.", locStr));
+
+				break;
+			default:
+				this.statusbar1.Push(_SbCtxState,
+					string.Format("Selected node with unknown node type {0}.", node.NodeType));
+				break;
+			}
 		}
 
 		void NodeviewNotes_KeyReleaseEvent(object o, KeyReleaseEventArgs args)

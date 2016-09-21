@@ -181,5 +181,27 @@ namespace CvnNote
 			: this(0, 0, 0, 0, severity, format, args)
 		{
 		}
+
+
+		/// <summary>
+		/// Gets the count of lines affected.
+		/// This depends on whether there are explicit character numbers
+		/// involved or not, and is subject to change, in the search for
+		/// a saner number reported to the user.
+		/// </summary>
+		/// <value>The count of lines affected.</value>
+		public int? LineCount {
+			get {
+				if (this.StartLine == 0)
+					return null;
+
+				//if (this.EndLine == this.StartLine)
+				//	return this.EndCharacter > this.StartCharacter ? 1 : 0;
+				if (this.StartCharacter > 0 && this.EndCharacter > 0)
+					return this.EndLine - this.StartLine + 1;
+				else
+					return this.EndLine - this.StartLine;
+			}
+		}
 	}
 }
