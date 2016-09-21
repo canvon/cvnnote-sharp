@@ -101,10 +101,10 @@ namespace CvnNote
 		/// Takes full location information for where the parse issue is located,
 		/// a severity and a format string plus arguments that will produce the message.
 		/// </summary>
-		/// <param name="startLine">Location's start line.</param>
-		/// <param name="startCharacter">Location's start character.</param>
-		/// <param name="endLine">Location's end line.</param>
-		/// <param name="endCharacter">Location's end character.</param>
+		/// <param name="startLine">Location's start line, inclusive.</param>
+		/// <param name="startCharacter">Location's start character, inclusive.</param>
+		/// <param name="endLine">Location's end line, exclusive.</param>
+		/// <param name="endCharacter">Location's end character, exclusive.</param>
 		/// <param name="severity">Message severity.</param>
 		/// <param name="format">Format string.</param>
 		/// <param name="args">Formatting arguments.</param>
