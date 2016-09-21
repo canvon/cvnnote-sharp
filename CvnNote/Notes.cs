@@ -239,8 +239,10 @@ namespace CvnNote
 
 				public string PassiveSummary {
 					get {
-						return string.Format("Type information {0}, body lines count {1}",
-							TypeInformation, BodyLinesCount);
+						return string.Format(
+							"Type information {0}, body lines count {1}",
+							this.TypeInformation ?? "(unknown)",
+							this.BodyLinesCount);
 					}
 				}
 
