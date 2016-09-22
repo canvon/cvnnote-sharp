@@ -32,6 +32,9 @@ This README contains: (**Table of Contents**)
   * [Working environment](#working-environment), or what you need to install/run
     to work on these projects.
 
+  * [Contact information](#contact), or who wrote this and from where can it
+    be retrieved.
+
 
 ## Directory layout
 
@@ -87,3 +90,15 @@ If you don't have access to a proper IDE or don't want to use one, you could
 still try to build the projects via Mono's `xbuild` command. The binary to run
 will be found in each project directory as `bin/Debug/CvnNote*.exe` (if
 applicable).
+
+
+## Contact
+
+**cvnnote-sharp**, canvon notes in C#/.NET, has been written by:
+
+  * Fabian Pietsch <fabian-cvnnote@canvon.de>  (primary author in 2016)
+
+The project will be hosted on GitHub starting 2016-09-22:
+
+  * https://github.com/canvon/cvnnote-sharp
+
