@@ -98,6 +98,8 @@ applicable).
 
   * Fabian Pietsch <fabian-cvnnote@canvon.de>  (primary author in 2016)
 
+It is licensed under the GNU General Public License (GPL), version 3 or later.
+
 The project will be hosted on GitHub starting 2016-09-22:
 
   * https://github.com/canvon/cvnnote-sharp
