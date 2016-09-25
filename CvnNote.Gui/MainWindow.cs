@@ -352,7 +352,7 @@ namespace CvnNote.Gui
 			int recentNumber = 1;
 			RecentManager manager = RecentManager.Default;
 			foreach (object item in new GLib.List(
-				manager.Items.Handle, typeof(RecentInfo), true, true)) {
+				manager.Items.Handle, typeof(RecentInfo), false, false)) {
 				// ^ We need to work-around known crash-bug
 				//   when using manager.Items directly.
 
