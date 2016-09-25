@@ -459,8 +459,8 @@ namespace CvnNote
 							"Category {0}{1}; body lines count {2}",
 							this.Category ?? "(unknown)",
 							this.Complement != null ?
-								string.Format(", complement \"{0}\"", this.Complement) :
-								", no complement",
+								string.Format(" / \"{0}\"", this.Complement) :
+								string.Empty,
 							this.BodyLinesCount);
 					}
 				}
