@@ -38,10 +38,14 @@ namespace CvnNote.Tests
 				"Day intro date");
 			Assert.AreEqual(2, notes1.Days[0].DayEntries.Count,
 				"Day entries");
-			Assert.AreEqual("foo bar baz", notes1.Days[0].DayEntries[0].TypeInformation,
-				"Day entry 0 type information");
-			Assert.AreEqual("quux", notes1.Days[0].DayEntries[1].TypeInformation,
-				"Day entry 1 type information");
+			Assert.AreEqual("foo", notes1.Days[0].DayEntries[0].Category,
+				"Day entry 0 category");
+			Assert.AreEqual("bar baz", notes1.Days[0].DayEntries[0].Complement,
+				"Day entry 0 complement");
+			Assert.AreEqual("quux", notes1.Days[0].DayEntries[1].Category,
+				"Day entry 1 category");
+			Assert.IsNull(notes1.Days[0].DayEntries[1].Complement,
+				"Day entry 1 complement");
 		}
 
 		[Test()]
@@ -72,11 +76,11 @@ namespace CvnNote.Tests
 				"Day 0 children");
 			Assert.AreEqual("Date 15 September 2016, chapter 1, comment: (none)", elem1Children[0].PassiveSummary,
 				"Day 0 child 0 (Notes.Day.Intro)");
-			Assert.AreEqual("Type information sw software1, body lines count 1", elem1Children[1].PassiveSummary,
+			Assert.AreEqual("Category sw, complement \"software1\"; body lines count 1", elem1Children[1].PassiveSummary,
 				"Day 0 child 1 (Notes.Day.Entry, software1)");
-			Assert.AreEqual("Type information sw software2, body lines count 0", elem1Children[2].PassiveSummary,
+			Assert.AreEqual("Category sw, complement \"software2\"; body lines count 0", elem1Children[2].PassiveSummary,
 				"Day 0 child 2 (Notes.Day.Entry, software2)");
-			Assert.AreEqual("Type information sw software3, body lines count 0", elem1Children[3].PassiveSummary,
+			Assert.AreEqual("Category sw, complement \"software3\"; body lines count 0", elem1Children[3].PassiveSummary,
 				"Day 0 child 3 (Notes.Day.Entry, software3)");
 		}
 

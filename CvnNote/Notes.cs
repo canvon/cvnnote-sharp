@@ -333,7 +333,27 @@ namespace CvnNote
 				}
 
 
-				public string TypeInformation {
+				/// <summary>
+				/// Holds the first part of an entry's first line.
+				/// This will usually be a category, like
+				/// <c>adm</c> (administration) or <c>develop</c> (software development)
+				/// or something on that lines.
+				/// </summary>
+				/// <value>The category / first part of entry first line.</value>
+				public string Category {
+					get;
+					private set;
+				}
+
+				/// <summary>
+				/// Holds the rest of an entry's first line.
+				/// This will usually be additional / more specific information, like
+				/// <c>luna</c> (a hostname) or <c>cvnnote-sharp</c> (a project name).
+				/// But it can be anything that makes the <see cref="Category"/>
+				/// more specific -- a complement.
+				/// </summary>
+				/// <value>The complement / rest of entry first line.</value>
+				public string Complement {
 					get;
 					private set;
 				}
@@ -362,13 +382,15 @@ namespace CvnNote
 					// Try parsing the input. From here on, errors get saved
 					// but should not produce an exception.
 
+					this.Category = null;
+					this.Complement = null;
+					this.BodyLinesCount = 0;
+
 					if (lines.Count < 1) {
 						AddParseIssue(new ParseIssue(
 							this.StartLineNumber, 0, this.StartLineNumber, 0,
 							ParseIssueSeverity.Error,
 							"Day entry can't be empty"));
-						this.TypeInformation = null;
-						this.BodyLinesCount = 0;
 						return;
 					}
 					else if (lines[0][0] == '\t' || lines[0][0] == ' ') {
@@ -382,13 +404,45 @@ namespace CvnNote
 						AddParseIssue(new ParseIssue(
 							startLine, 0, endLine, 0,
 							ParseIssueSeverity.Error,
-							"Day entry has to start with type information"));
-						this.TypeInformation = null;
-						this.BodyLinesCount = 0;
+							"Day entry has to start with a category name"));
 						return;
 					}
 
-					this.TypeInformation = lines[0];
+					string[] fields = lines[0].Split(new char[]{' '}, 2);
+					if (object.ReferenceEquals(fields, null) ||
+					    fields.Length < 1 ||
+					    string.IsNullOrWhiteSpace(fields[0])) {
+
+						int startLine = 0, endLine = 0;
+						if (this.StartLineNumber > 0) {
+							startLine = this.StartLineNumber;
+							endLine = this.StartLineNumber + 1;
+						}
+						AddParseIssue(new ParseIssue(
+							startLine, 0, endLine, 0,
+							ParseIssueSeverity.Error,
+							"Day entry category/complement unexpectedly missing"));
+						return;
+					}
+
+					this.Category = fields[0];
+
+					// TODO: Further parse complement?
+					if (fields.Length >= 2 && !string.IsNullOrWhiteSpace(fields[1])) {
+						this.Complement = fields[1].Trim();
+					}
+
+					if (fields.Length > 2) {
+						int startCharacter = fields[0].Length + 1 + fields[1].Length + 1;
+						AddParseIssue(new ParseIssue(
+							this.StartLineNumber, startCharacter,
+							this.StartLineNumber, lines[0].Length + 1,
+							ParseIssueSeverity.Warning,
+							"Trailing unrecognized data after day entry category/complement: {0} additional fields",
+							fields.Length - 2));
+						// Ignore / go on parsing...
+					}
+
 					// TODO: Process rest of data somehow.
 					BodyLinesCount = lines.Count - 1;
 				}
@@ -402,8 +456,9 @@ namespace CvnNote
 				public string PassiveSummary {
 					get {
 						return string.Format(
-							"Type information {0}, body lines count {1}",
-							this.TypeInformation ?? "(unknown)",
+							"Category {0}, complement \"{1}\"; body lines count {2}",
+							this.Category ?? "(unknown)",
+							this.Complement ?? "(unknown)",
 							this.BodyLinesCount);
 					}
 				}
