@@ -36,6 +36,7 @@
     <Compile Include="CvnBuffer.cs" />
     <Compile Include="ParseIssue.cs" />
     <Compile Include="Location.cs" />
+    <Compile Include="ILocatable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -49,7 +49,7 @@ namespace CvnNote
 	/// by the <see cref="Notes"/> class.</seealso>
 	/// </remarks>
 	/// </summary>
-	public class ParseIssue
+	public class ParseIssue : ILocatable
 	{
 		/// <summary>
 		/// Gets the message of the parse issue.
