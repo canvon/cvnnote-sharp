@@ -37,6 +37,8 @@
     <Compile Include="ParseIssue.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="ILocatable.cs" />
+    <Compile Include="SimpleLocatableItem.cs" />
+    <Compile Include="SemanticLocatableItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
