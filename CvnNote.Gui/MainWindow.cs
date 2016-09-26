@@ -184,6 +184,10 @@ namespace CvnNote.Gui
 		private readonly uint _SbCtxState;
 		private readonly uint _SbCtxError;
 
+		protected TextTag
+			_TagCurrentNotesElement,
+			_TagCurrentNotesElementLinewise;
+
 		private string _FilePath = null;
 		public string FilePath {
 			get {
@@ -236,6 +240,18 @@ namespace CvnNote.Gui
 			_SbCtxActivity = this.statusbar1.GetContextId("Activity like loading or cleaning up");
 			_SbCtxState = this.statusbar1.GetContextId("State of affairs");
 			_SbCtxError = this.statusbar1.GetContextId("Error message, should stay visible");
+
+			// Prepare using TextView.
+			TextTagTable tagTable = this.textviewText.Buffer.TagTable;
+
+			_TagCurrentNotesElement = new TextTag("current_notes_element");
+			_TagCurrentNotesElement.Background = "lightgreen";
+			_TagCurrentNotesElement.BackgroundSet = true;
+			tagTable.Add(_TagCurrentNotesElement);
+
+			_TagCurrentNotesElementLinewise = new TextTag("current_notes_element_linewise");
+			_TagCurrentNotesElementLinewise.ParagraphBackground = "lightgreen";
+			tagTable.Add(_TagCurrentNotesElementLinewise);
 
 			// Set up NodeView.
 			this.nodeviewNotes.NodeStore = new NodeStore(typeof(NotesElementTreeNode));
@@ -595,17 +611,27 @@ namespace CvnNote.Gui
 				// Keep state.
 				return;
 
-			// Scroll TextView to associated position in the text.
+			// Scroll TextView to associated position in the text,
+			// and tag possibly interesting ranges.
 			TextBuffer buf = this.textviewText.Buffer;
+			buf.RemoveAllTags(buf.StartIter, buf.EndIter);
+			TextIter start, end;
 			switch (node.NodeType) {
 			case NotesElementTreeNodeType.NotesElement:
-				TextIter iter = buf.GetIterAtLineOffset(node.NotesElement.StartLineNumber - 1, 0);
-				buf.SelectRange(iter, iter);
-				this.textviewText.ScrollToIter(iter, 0, true, 0, 0.5);
+				INotesElement elem = node.NotesElement;
+				start = buf.GetIterAtLineOffset(elem.StartLineNumber - 1, 0);
+				end = buf.GetIterAtLineOffset(elem.StartLineNumber - 1 + elem.TotalLineCount, 0);
+
+				// Tag entire selected notes element's lines range as current.
+				buf.ApplyTag(_TagCurrentNotesElementLinewise, start, end);
+
+				// Remove selection, set cursor to start of element, scroll window to there.
+				buf.SelectRange(start, start);
+				this.textviewText.ScrollToIter(start, 0, true, 0, 0.5);
 
 				// Inform the user about what has been done.
 				this.statusbar1.Push(_SbCtxState,
-					string.Format("Jumped to plaintext line {0}.", node.NotesElement.StartLineNumber));
+					string.Format("Jumped to plaintext line {0}.", elem.StartLineNumber));
 
 				break;
 			case NotesElementTreeNodeType.ParseIssue:
@@ -614,7 +640,6 @@ namespace CvnNote.Gui
 					break;
 				}
 
-				TextIter start, end;
 				string locStr;
 				if (node.ParseIssue.StartCharacter > 0 &&
 				    node.ParseIssue.EndCharacter > 0) {
