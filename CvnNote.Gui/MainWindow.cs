@@ -91,12 +91,12 @@ namespace CvnNote.Gui
 				case NotesElementTreeNodeType.NotesElement:
 					return string.Format("{0}", this.NotesElement.StartLineNumber);
 				case NotesElementTreeNodeType.ParseIssue:
-					if (this.ParseIssue.StartLine == 0)
+					if (this.ParseIssue.Location.StartLine == 0)
 						return String.Empty;
 					return string.Format(
 						"{0}-{1}",
-						this.ParseIssue.StartLine,
-						this.ParseIssue.EndLine);
+						this.ParseIssue.Location.StartLine,
+						this.ParseIssue.Location.EndLine);
 				default:
 					throw new InvalidOperationException(
 						string.Format("Invalid node type {0}", this.NodeType));
@@ -111,7 +111,7 @@ namespace CvnNote.Gui
 				case NotesElementTreeNodeType.NotesElement:
 					return string.Format("{0}", NotesElement.TotalLineCount);
 				case NotesElementTreeNodeType.ParseIssue:
-					int? lineCount = this.ParseIssue.LineCount;
+					int? lineCount = this.ParseIssue.Location.LineCount;
 					if (lineCount.HasValue)
 						return string.Format("{0}", lineCount.Value);
 					else
@@ -633,17 +633,18 @@ namespace CvnNote.Gui
 			if (object.ReferenceEquals(issue, null))
 				throw new ArgumentNullException("issue");
 
-			if (issue.StartLine < 1)
+			Location loc = issue.Location;
+			if (object.ReferenceEquals(loc, null) || loc.StartLine < 1)
 				// No location information known; ignore.
 				return;
 
 			TextBuffer buf = this.textviewText.Buffer;
 			TextIter start, end;
 			TextTag tag;
-			if (issue.StartCharacter < 1 && issue.EndCharacter < 1) {
+			if (loc.StartCharacter < 1 && loc.EndCharacter < 1) {
 				// Line-wise
-				start = buf.GetIterAtLineOffset(issue.StartLine - 1, 0);
-				end = buf.GetIterAtLineOffset(issue.EndLine - 1 + 1, 0);
+				start = buf.GetIterAtLineOffset(loc.StartLine - 1, 0);
+				end = buf.GetIterAtLineOffset(loc.EndLine - 1 + 1, 0);
 				switch (issue.Severity) {
 				case ParseIssueSeverity.Error:
 					tag = _TagErrorParseIssueLinewise;
@@ -660,8 +661,8 @@ namespace CvnNote.Gui
 			}
 			else {
 				// Character-wise
-				start = buf.GetIterAtLineOffset(issue.StartLine - 1, issue.StartCharacter - 1);
-				end = buf.GetIterAtLineOffset(issue.EndLine - 1, issue.EndCharacter - 1);
+				start = buf.GetIterAtLineOffset(loc.StartLine - 1, loc.StartCharacter - 1);
+				end = buf.GetIterAtLineOffset(loc.EndLine - 1, loc.EndCharacter - 1);
 				switch (issue.Severity) {
 				case ParseIssueSeverity.Error:
 					tag = _TagErrorParseIssue;
@@ -719,32 +720,32 @@ namespace CvnNote.Gui
 
 				break;
 			case NotesElementTreeNodeType.ParseIssue:
-				if (node.ParseIssue.StartLine < 1) {
+				if (node.ParseIssue.Location.StartLine < 1) {
 					this.statusbar1.Push(_SbCtxState, "Can't jump to parse issue location as none is known.");
 					break;
 				}
 
 				string locStr;
-				if (node.ParseIssue.StartCharacter > 0 &&
-				    node.ParseIssue.EndCharacter > 0) {
+				if (node.ParseIssue.Location.StartCharacter > 0 &&
+				    node.ParseIssue.Location.EndCharacter > 0) {
 					start = buf.GetIterAtLineOffset(
-						node.ParseIssue.StartLine - 1,
-						node.ParseIssue.StartCharacter - 1);
+						node.ParseIssue.Location.StartLine - 1,
+						node.ParseIssue.Location.StartCharacter - 1);
 					end = buf.GetIterAtLineOffset(
-						node.ParseIssue.EndLine - 1,
-						node.ParseIssue.EndCharacter - 1);
+						node.ParseIssue.Location.EndLine - 1,
+						node.ParseIssue.Location.EndCharacter - 1);
 					locStr = string.Format("({0},{1})-({2},{3})",
-						node.ParseIssue.StartLine,
-						node.ParseIssue.StartCharacter,
-						node.ParseIssue.EndLine,
-						node.ParseIssue.EndCharacter);
+						node.ParseIssue.Location.StartLine,
+						node.ParseIssue.Location.StartCharacter,
+						node.ParseIssue.Location.EndLine,
+						node.ParseIssue.Location.EndCharacter);
 				}
 				else {
-					start = buf.GetIterAtLine(node.ParseIssue.StartLine - 1);
-					end = buf.GetIterAtLine(node.ParseIssue.EndLine - 1);
+					start = buf.GetIterAtLine(node.ParseIssue.Location.StartLine - 1);
+					end = buf.GetIterAtLine(node.ParseIssue.Location.EndLine - 1);
 					locStr = string.Format("line {0} to {1} (exclusive)",
-						node.ParseIssue.StartLine,
-						node.ParseIssue.EndLine);
+						node.ParseIssue.Location.StartLine,
+						node.ParseIssue.Location.EndLine);
 				}
 				buf.SelectRange(start, end);
 				this.textviewText.ScrollToIter(start, 0, true, 0, 0.5);

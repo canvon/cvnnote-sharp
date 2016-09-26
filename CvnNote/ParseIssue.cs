@@ -70,45 +70,10 @@ namespace CvnNote
 		}
 
 		/// <summary>
-		/// Gets the start line, inclusive, of where the parse issue is located.
-		/// First line in the input is 1. If 0, this means not known / not set.
+		/// Gets the <see cref="CvnNote.Location"/> of the parse issue.
 		/// </summary>
-		/// <value>The start line, inclusive.</value>
-		public int StartLine {
-			get;
-			private set;
-		}
-
-		/// <summary>
-		/// Gets the start character, inclusive, of where the parse issue is located.
-		/// First character in a line is 1. If 0, this means not known/ not set.
-		/// </summary>
-		/// <value>The start character, inclusive.</value>
-		public int StartCharacter {
-			get;
-			private set;
-		}
-
-		/// <summary>
-		/// Gets the end line, exclusive, of where the parse issue is located.
-		/// Please note that
-		/// <c>StartLine == EndLine &amp;&amp; StartCharacter == EndCharacter</c>
-		/// means a length of zero (0).
-		/// </summary>
-		/// <value>The end line, exclusive.</value>
-		public int EndLine {
-			get;
-			private set;
-		}
-
-		/// <summary>
-		/// Gets the end character, exclusive, of where the parse issue is located.
-		/// Please note that
-		/// <c>StartLine == EndLine &amp;&amp; StartCharacter == EndCharacter</c>
-		/// means a length of zero (0).
-		/// </summary>
-		/// <value>The end character, exclusive.</value>
-		public int EndCharacter {
+		/// <value>The location.</value>
+		public Location Location {
 			get;
 			private set;
 		}
@@ -133,40 +98,7 @@ namespace CvnNote
 			string format, params object[] args)
 		{
 			// Checks/assignment for location information.
-			if (startLine < 0)
-				throw new ArgumentOutOfRangeException(
-					"startLine", startLine,
-					"Start line has to be non-negative");
-
-			if (startCharacter < 0)
-				throw new ArgumentOutOfRangeException(
-					"startCharacter", startCharacter,
-					"Start character has to be non-negative");
-
-			if (endLine < 0)
-				throw new ArgumentOutOfRangeException(
-					"endLine", endLine,
-					"End line has to be non-negative");
-
-			if (endCharacter < 0)
-				throw new ArgumentOutOfRangeException(
-					"endCharacter", endCharacter,
-					"End character has to be non-negative");
-
-			if (endLine < startLine)
-				throw new ArgumentOutOfRangeException(
-					"endLine", endLine,
-					"End line can't be smaller than start line");
-
-			if (endLine == startLine && endCharacter < startCharacter)
-				throw new ArgumentOutOfRangeException(
-					"endCharacter", endCharacter,
-					"End character can't be before start character on the same line");
-
-			this.StartLine = startLine;
-			this.StartCharacter = startCharacter;
-			this.EndLine = endLine;
-			this.EndCharacter = endCharacter;
+			this.Location = new Location(startLine, startCharacter, endLine, endCharacter);
 
 
 			// Checks/assignment for severity.
@@ -198,28 +130,6 @@ namespace CvnNote
 			string format, params object[] args)
 			: this(0, 0, 0, 0, severity, format, args)
 		{
-		}
-
-
-		/// <summary>
-		/// Gets the count of lines affected.
-		/// This depends on whether there are explicit character numbers
-		/// involved or not, and is subject to change, in the search for
-		/// a saner number reported to the user.
-		/// </summary>
-		/// <value>The count of lines affected.</value>
-		public int? LineCount {
-			get {
-				if (this.StartLine == 0)
-					return null;
-
-				//if (this.EndLine == this.StartLine)
-				//	return this.EndCharacter > this.StartCharacter ? 1 : 0;
-				if (this.StartCharacter > 0 && this.EndCharacter > 0)
-					return this.EndLine - this.StartLine + 1;
-				else
-					return this.EndLine - this.StartLine;
-			}
 		}
 	}
 }
