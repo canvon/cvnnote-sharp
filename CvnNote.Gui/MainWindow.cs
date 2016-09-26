@@ -605,6 +605,11 @@ namespace CvnNote.Gui
 			// than still the information we would have jumped to line <n>.)
 			this.statusbar1.Pop(_SbCtxState);
 
+			// Clean up previous "current" colorization. (But keep all other tags.)
+			TextBuffer buf = this.textviewText.Buffer;
+			buf.RemoveTag(_TagCurrentNotesElement, buf.StartIter, buf.EndIter);
+			buf.RemoveTag(_TagCurrentNotesElementLinewise, buf.StartIter, buf.EndIter);
+
 			// Try to retrieve the currently selected node.
 			var node = this.nodeviewNotes.NodeSelection.SelectedNode as NotesElementTreeNode;
 			if (object.ReferenceEquals(node, null))
@@ -613,8 +618,6 @@ namespace CvnNote.Gui
 
 			// Scroll TextView to associated position in the text,
 			// and tag possibly interesting ranges.
-			TextBuffer buf = this.textviewText.Buffer;
-			buf.RemoveAllTags(buf.StartIter, buf.EndIter);
 			TextIter start, end;
 			switch (node.NodeType) {
 			case NotesElementTreeNodeType.NotesElement:
