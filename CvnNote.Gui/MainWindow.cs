@@ -186,7 +186,11 @@ namespace CvnNote.Gui
 
 		protected TextTag
 			_TagCurrentNotesElement,
-			_TagCurrentNotesElementLinewise;
+			_TagCurrentNotesElementLinewise,
+			_TagErrorParseIssue,
+			_TagErrorParseIssueLinewise,
+			_TagWarningParseIssue,
+			_TagWarningParseIssueLinewise;
 
 		private string _FilePath = null;
 		public string FilePath {
@@ -244,6 +248,7 @@ namespace CvnNote.Gui
 			// Prepare using TextView.
 			TextTagTable tagTable = this.textviewText.Buffer.TagTable;
 
+			// Current notes element
 			_TagCurrentNotesElement = new TextTag("current_notes_element");
 			_TagCurrentNotesElement.Background = "lightgreen";
 			_TagCurrentNotesElement.BackgroundSet = true;
@@ -252,6 +257,26 @@ namespace CvnNote.Gui
 			_TagCurrentNotesElementLinewise = new TextTag("current_notes_element_linewise");
 			_TagCurrentNotesElementLinewise.ParagraphBackground = "lightgreen";
 			tagTable.Add(_TagCurrentNotesElementLinewise);
+
+			// Error parse issue
+			_TagErrorParseIssue = new TextTag("error_parse_issue");
+			_TagErrorParseIssue.Background = "red";
+			_TagErrorParseIssue.BackgroundSet = true;
+			tagTable.Add(_TagErrorParseIssue);
+
+			_TagErrorParseIssueLinewise = new TextTag("error_parse_issue_linewise");
+			_TagErrorParseIssueLinewise.ParagraphBackground = "red";
+			tagTable.Add(_TagErrorParseIssueLinewise);
+
+			// Warning parse issue
+			_TagWarningParseIssue = new TextTag("warning_parse_issue");
+			_TagWarningParseIssue.Background = "orange";
+			_TagWarningParseIssue.BackgroundSet = true;
+			tagTable.Add(_TagWarningParseIssue);
+
+			_TagWarningParseIssueLinewise = new TextTag("warning_parse_issue_linewise");
+			_TagWarningParseIssueLinewise.ParagraphBackground = "orange";
+			tagTable.Add(_TagWarningParseIssueLinewise);
 
 			// Set up NodeView.
 			this.nodeviewNotes.NodeStore = new NodeStore(typeof(NotesElementTreeNode));
@@ -584,6 +609,7 @@ namespace CvnNote.Gui
 				foreach (ParseIssue issue in issues) {
 					// Flat (no sub-issues), we can do this without recursion.
 					node.AddChild(new NotesElementTreeNode(issue));
+					ColorizeParseIssue(issue);
 				}
 			}
 
@@ -596,6 +622,61 @@ namespace CvnNote.Gui
 					AddNotesTree(child, node);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Colorize TextView buffer range corresponding to a <see cref="ParseIssue"/>.
+		/// </summary>
+		/// <param name="issue">The parse issue.</param>
+		protected void ColorizeParseIssue(ParseIssue issue)
+		{
+			if (object.ReferenceEquals(issue, null))
+				throw new ArgumentNullException("issue");
+
+			if (issue.StartLine < 1)
+				// No location information known; ignore.
+				return;
+
+			TextBuffer buf = this.textviewText.Buffer;
+			TextIter start, end;
+			TextTag tag;
+			if (issue.StartCharacter < 1 && issue.EndCharacter < 1) {
+				// Line-wise
+				start = buf.GetIterAtLineOffset(issue.StartLine - 1, 0);
+				end = buf.GetIterAtLineOffset(issue.EndLine - 1 + 1, 0);
+				switch (issue.Severity) {
+				case ParseIssueSeverity.Error:
+					tag = _TagErrorParseIssueLinewise;
+					break;
+				case ParseIssueSeverity.Warning:
+					tag = _TagWarningParseIssueLinewise;
+					break;
+				default:
+					Debug.Print("[MainWindow] ColorizeParseIssue(): " +
+						"Unrecognized severity \"{0}\" line-wise, skipping.",
+						issue.Severity);
+					return;
+				}
+			}
+			else {
+				// Character-wise
+				start = buf.GetIterAtLineOffset(issue.StartLine - 1, issue.StartCharacter - 1);
+				end = buf.GetIterAtLineOffset(issue.EndLine - 1, issue.EndCharacter - 1);
+				switch (issue.Severity) {
+				case ParseIssueSeverity.Error:
+					tag = _TagErrorParseIssue;
+					break;
+				case ParseIssueSeverity.Warning:
+					tag = _TagWarningParseIssue;
+					break;
+				default:
+					Debug.Print("[MainWindow] ColorizeParseIssue(): " +
+						"Unrecognized severity \"{0}\" character-wise, skipping.",
+						issue.Severity);
+					return;
+				}
+			}
+			buf.ApplyTag(tag, start, end);
 		}
 
 		void NodeviewNotes_NodeSelection_Changed(object sender, EventArgs e)
