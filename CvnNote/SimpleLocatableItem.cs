@@ -61,8 +61,9 @@ namespace CvnNote
 		{
 			this.Location = new Location(startLine, startCharacter, endLine, endCharacter);
 
-			if (object.ReferenceEquals(item, null))
-				throw new ArgumentNullException("item");
+			// (Allow null to be stored, think of a "null" literal.)
+			//if (object.ReferenceEquals(item, null))
+			//	throw new ArgumentNullException("item");
 
 			this.Item = item;
 		}
