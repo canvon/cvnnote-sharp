@@ -291,21 +291,21 @@ namespace CvnNote.Gui
 
 			// Identifier
 			var identifierSemanticTypeTag = new TextTag("syntax_identifier");
-			identifierSemanticTypeTag.Foreground = "cyan";
+			identifierSemanticTypeTag.Foreground = "darkcyan";
 			identifierSemanticTypeTag.ForegroundSet = true;
 			tagTable.Add(identifierSemanticTypeTag);
 			this._TagsSemanticType.Add(SemanticType.Identifier, identifierSemanticTypeTag);
 
 			// Constant
 			var constantSemanticTypeTag = new TextTag("syntax_constant");
-			constantSemanticTypeTag.Foreground = "pink";
+			constantSemanticTypeTag.Foreground = "red";
 			constantSemanticTypeTag.ForegroundSet = true;
 			tagTable.Add(constantSemanticTypeTag);
 			this._TagsSemanticType.Add(SemanticType.Constant, constantSemanticTypeTag);
 
 			// Keyword
 			var keywordSemanticTypeTag = new TextTag("syntax_keyword");
-			keywordSemanticTypeTag.Foreground = "yellow";
+			keywordSemanticTypeTag.Foreground = "darkorange";
 			keywordSemanticTypeTag.ForegroundSet = true;
 			tagTable.Add(keywordSemanticTypeTag);
 			this._TagsSemanticType.Add(SemanticType.Keyword, keywordSemanticTypeTag);
