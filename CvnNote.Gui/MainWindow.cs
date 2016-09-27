@@ -298,7 +298,7 @@ namespace CvnNote.Gui
 
 			// Constant
 			var constantSemanticTypeTag = new TextTag("syntax_constant");
-			constantSemanticTypeTag.Foreground = "red";
+			constantSemanticTypeTag.Foreground = "darkred";
 			constantSemanticTypeTag.ForegroundSet = true;
 			tagTable.Add(constantSemanticTypeTag);
 			this._TagsSemanticType.Add(SemanticType.Constant, constantSemanticTypeTag);
