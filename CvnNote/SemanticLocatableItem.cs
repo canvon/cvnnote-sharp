@@ -36,10 +36,25 @@ namespace CvnNote
 
 
 	/// <summary>
+	/// An interface for making an item's location and semantic type information available
+	/// without the consumer knowing about the item's concrete class.
+	/// </summary>
+	public interface ISemanticLocatable : ILocatable {
+		/// <summary>
+		/// Holds the semantic type information.
+		/// </summary>
+		/// <value>The semantic type information.</value>
+		SemanticType SemanticType {
+			get;
+		}
+	}
+
+
+	/// <summary>
 	/// A wrapped item of type <see cref="T"/> that carries
 	/// <see cref="Location"/> and <see cref="SemanticType"/> information.
 	/// </summary>
-	public class SemanticLocatableItem<T> : SimpleLocatableItem<T>
+	public class SemanticLocatableItem<T> : SimpleLocatableItem<T>, ISemanticLocatable
 	{
 		/// <summary>
 		/// Holds the semantic type information for the associated wrapped <see cref="Item"/>.

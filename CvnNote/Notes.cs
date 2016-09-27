@@ -47,6 +47,10 @@ namespace CvnNote
 		int TotalParseIssueCount {
 			get;
 		}
+
+		IList<ISemanticLocatable> SyntaxElements {
+			get;
+		}
 	}
 
 
@@ -90,7 +94,14 @@ namespace CvnNote
 					private set;
 				}
 
-				public DateTime? Date {
+				public SemanticLocatableItem<string> Skip {
+					get;
+					private set;
+				}
+
+				public static readonly string SkipString = "[...]";
+
+				public SemanticLocatableItem<DateTime> Date {
 					get;
 					private set;
 				}
@@ -100,27 +111,28 @@ namespace CvnNote
 				public string DateFormatted {
 					get {
 						if (this.IsSkip)
-							return "[...]";
-						return this.Date.HasValue ?
-							string.Format("{0:" + DateFormat + "}", this.Date.Value) :
+							return SkipString;
+						return !object.ReferenceEquals(this.Date, null) ?
+							string.Format("{0:" + DateFormat + "}", this.Date.Item) :
 							"(date missing)";
 					}
 				}
 
-				public int Chapter {
+				public SemanticLocatableItem<int> Chapter {
 					get;
 					private set;
 				}
 
 				public string ChapterFormattedForAppend {
 					get {
-						if (this.Chapter == 1)
-							return String.Empty;
-						return string.Format(" ({0})", this.Chapter);
+						int chapter = 0;
+						if (!object.ReferenceEquals(this.Chapter, null))
+							chapter = this.Chapter.Item;
+						return chapter == 1 ? String.Empty : string.Format(" ({0})", chapter);
 					}
 				}
 
-				public string Comment {
+				public SemanticLocatableItem<string> Comment {
 					get;
 					private set;
 				}
@@ -129,7 +141,9 @@ namespace CvnNote
 					get {
 						if (object.ReferenceEquals(this.Comment, null))
 							return string.Empty;
-						return string.Format(" ({0})", this.Comment);
+						if (object.ReferenceEquals(this.Comment.Item, null))
+							return string.Empty;
+						return string.Format(" ({0})", this.Comment.Item);
 					}
 				}
 
@@ -162,8 +176,9 @@ namespace CvnNote
 					// but should not produce an exception.
 
 					this.IsSkip = false;
+					this.Skip = null;
 					this.Date = null;
-					this.Chapter = 0;
+					this.Chapter = null;
 					this.Comment = null;
 
 					if (lines.Count < 1) {
@@ -201,10 +216,18 @@ namespace CvnNote
 
 					field = fields[0];
 					try {
-						if (field == "[...]")
+						if (field == SkipString) {
 							this.IsSkip = true;
-						else
-							this.Date = DateTime.ParseExact(field, DateFormat, null);
+							this.Skip = new SemanticLocatableItem<string>(
+								this.StartLineNumber, 1, this.StartLineNumber, 1 + SkipString.Length,
+								SkipString, SemanticType.Constant);
+						}
+						else {
+							DateTime date = DateTime.ParseExact(field, DateFormat, null);
+							this.Date = new SemanticLocatableItem<DateTime>(
+								this.StartLineNumber, 1, this.StartLineNumber, 1 + field.Length,
+								date, SemanticType.Constant);
+						}
 					}
 					catch (Exception ex) {
 						AddParseIssue(new ParseIssue(
@@ -227,8 +250,12 @@ namespace CvnNote
 							if (field[field.Length - 1] != ')')
 								throw new FormatException("Chapter closing parenthesis must be ')'");
 
-							string chapter = field.Substring(1, field.Length - 2);
-							this.Chapter = int.Parse(chapter);
+							string chapterString = field.Substring(1, field.Length - 2);
+							int chapter = int.Parse(chapterString);
+							this.Chapter = new SemanticLocatableItem<int>(
+								this.StartLineNumber, 1 + prevLen,
+								this.StartLineNumber, 1 + prevLen + field.Length,
+								chapter, SemanticType.Constant);
 						}
 						catch (Exception ex) {
 							AddParseIssue(new ParseIssue(
@@ -245,7 +272,7 @@ namespace CvnNote
 						// Default to 1.
 						// (But only if we got to parse it at all!
 						// That is, stays 0 on severe errors.)
-						this.Chapter = 1;
+						this.Chapter = new SemanticLocatableItem<int>(1, SemanticType.None);
 					}
 
 					if (fields.Length >= 3) {
@@ -260,7 +287,11 @@ namespace CvnNote
 							if (field[field.Length - 1] != ')')
 								throw new FormatException("Comment closing parenthesis must be ')'");
 
-							this.Comment = field.Substring(1, field.Length - 2);
+							string comment = field.Substring(1, field.Length - 2);
+							this.Comment = new SemanticLocatableItem<string>(
+								this.StartLineNumber, 1 + prevLen,
+								this.StartLineNumber, 1 + prevLen + field.Length,
+								comment, SemanticType.Identifier);
 						}
 						catch (Exception ex) {
 							AddParseIssue(new ParseIssue(
@@ -288,15 +319,39 @@ namespace CvnNote
 						string labelling = this.IsSkip ? "Skip" : "Date {0}";
 
 						return string.Format(labelling + ", chapter {1}, comment: {2}",
-							this.Date.HasValue ? string.Format("{0:D}", this.Date) : "(missing)",
-							this.Chapter,
-							this.Comment ?? "(none)");
+							!object.ReferenceEquals(this.Date, null) ?
+								string.Format("{0:D}", this.Date.Item) :
+								"(missing)",
+							!object.ReferenceEquals(this.Chapter, null) ?
+								this.Chapter.Item :
+								0,
+							this.Comment?.Item ?? "(none)");
 					}
 				}
 
 				public IList<INotesElement> Children {
 					get {
 						return null;
+					}
+				}
+
+				public IList<ISemanticLocatable> SyntaxElements {
+					get {
+						var ret = new List<ISemanticLocatable>();
+
+						if (this.IsSkip) {
+							ret.Add(this.Skip);
+						}
+						else {
+							if (!object.ReferenceEquals(this.Date, null))
+								ret.Add(this.Date);
+							if (!object.ReferenceEquals(this.Chapter, null))
+								ret.Add(this.Chapter);
+							if (!object.ReferenceEquals(this.Comment, null))
+								ret.Add(this.Comment);
+						}
+
+						return ret;
 					}
 				}
 			}
@@ -340,7 +395,7 @@ namespace CvnNote
 				/// or something on that lines.
 				/// </summary>
 				/// <value>The category / first part of entry first line.</value>
-				public string Category {
+				public SemanticLocatableItem<string> Category {
 					get;
 					private set;
 				}
@@ -353,7 +408,7 @@ namespace CvnNote
 				/// more specific -- a complement.
 				/// </summary>
 				/// <value>The complement / rest of entry first line.</value>
-				public string Complement {
+				public SemanticLocatableItem<string> Complement {
 					get;
 					private set;
 				}
@@ -409,6 +464,8 @@ namespace CvnNote
 					}
 
 					string[] fields = lines[0].Split(new char[]{' '}, 2);
+					string field;
+					int prevLen = 0;
 					if (object.ReferenceEquals(fields, null) ||
 					    fields.Length < 1 ||
 					    string.IsNullOrWhiteSpace(fields[0])) {
@@ -425,12 +482,23 @@ namespace CvnNote
 						return;
 					}
 
-					this.Category = fields[0];
+					// Save category string with associated location and semantic information.
+					field = fields[0];
+					this.Category = new SemanticLocatableItem<string>(
+						this.StartLineNumber, 1, this.StartLineNumber, field.Length + 1,
+						field, SemanticType.Type);
+					prevLen = prevLen + field.Length;
 
 					// TODO: Further parse complement?
 					if (fields.Length >= 2 && !string.IsNullOrWhiteSpace(fields[1])) {
-						this.Complement = fields[1].Trim();
+						// Save complement string with associated location and semantic information.
+						field = fields[1];
+						this.Complement = new SemanticLocatableItem<string>(
+							this.StartLineNumber, 1 + prevLen + 1,
+							this.StartLineNumber, 1 + prevLen + 1 + field.Length + 1,
+							field.Trim(), SemanticType.Identifier);
 					}
+					//prevLen = prevLen + 1 + field.Length;
 
 					if (fields.Length > 2) {
 						int startCharacter = fields[0].Length + 1 + fields[1].Length + 1;
@@ -457,9 +525,9 @@ namespace CvnNote
 					get {
 						return string.Format(
 							"Category {0}{1}; body lines count {2}",
-							this.Category ?? "(unknown)",
-							this.Complement != null ?
-								string.Format(" / \"{0}\"", this.Complement) :
+							this.Category?.Item ?? "(unknown)",
+							!object.ReferenceEquals(this.Complement?.Item, null) ?
+								string.Format(" / \"{0}\"", this.Complement.Item) :
 								string.Empty,
 							this.BodyLinesCount);
 					}
@@ -469,6 +537,19 @@ namespace CvnNote
 					get {
 						var ret = new List<INotesElement>();
 						// FIXME: Return actual children.
+						return ret;
+					}
+				}
+
+				public IList<ISemanticLocatable> SyntaxElements {
+					get {
+						var ret = new List<ISemanticLocatable>();
+
+						if (!object.ReferenceEquals(this.Category, null))
+							ret.Add(this.Category);
+						if (!object.ReferenceEquals(this.Complement, null))
+							ret.Add(this.Complement);
+
 						return ret;
 					}
 				}
@@ -641,6 +722,12 @@ namespace CvnNote
 					return ret;
 				}
 			}
+
+			public IList<ISemanticLocatable> SyntaxElements {
+				get {
+					return null;
+				}
+			}
 		}
 
 
@@ -751,6 +838,12 @@ namespace CvnNote
 				var ret = new List<INotesElement>();
 				ret.AddRange(Days);
 				return ret;
+			}
+		}
+
+		public IList<ISemanticLocatable> SyntaxElements {
+			get {
+				return null;
 			}
 		}
 	}
