@@ -618,11 +618,25 @@ namespace CvnNote.Gui
 			this.statusbar1.Push(_SbCtxState, "File loaded.");
 		}
 
+		/// <summary>
+		/// Add a <see cref="Notes"/> tree recursively to the GUI.
+		/// See the other overload for details.
+		/// </summary>
+		/// <param name="tree">The root of the Notes tree.</param>
 		protected void AddNotesTree(INotesElement tree)
 		{
 			AddNotesTree(tree, null);
 		}
 
+		/// <summary>
+		/// Add a <see cref="Notes"/> tree recursively to the GUI.
+		/// This builds up the NodeView NodeStore,
+		/// adds formatting to the TextView and
+		/// possibly does other things, too.
+		/// </summary>
+		/// <param name="tree">The current element of the Notes tree.</param>
+		/// <param name="parentNode">Optionally, a NodeView parent node
+		/// to which to attach a to-be-created node, or <c>null</c>.</param>
 		protected void AddNotesTree(INotesElement tree, NotesElementTreeNode parentNode)
 		{
 			if (object.ReferenceEquals(tree, null))
@@ -664,6 +678,11 @@ namespace CvnNote.Gui
 			}
 		}
 
+		/// <summary>
+		/// Colorize TextView buffer range corresponding to
+		/// a <see cref="ISemanticLocatable"/> syntax element.
+		/// </summary>
+		/// <param name="elem">The syntax element.</param>
 		protected void ColorizeSyntaxElement(ISemanticLocatable elem)
 		{
 			if (object.ReferenceEquals(elem, null))
