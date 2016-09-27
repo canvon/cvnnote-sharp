@@ -191,6 +191,7 @@ namespace CvnNote.Gui
 			_TagErrorParseIssueLinewise,
 			_TagWarningParseIssue,
 			_TagWarningParseIssueLinewise;
+		protected Dictionary<SemanticType, TextTag> _TagsSemanticType;
 
 		private string _FilePath = null;
 		public string FilePath {
@@ -277,6 +278,38 @@ namespace CvnNote.Gui
 			_TagWarningParseIssueLinewise = new TextTag("warning_parse_issue_linewise");
 			_TagWarningParseIssueLinewise.ParagraphBackground = "orange";
 			tagTable.Add(_TagWarningParseIssueLinewise);
+
+			// Semantic types:
+			_TagsSemanticType = new Dictionary<SemanticType, TextTag>();
+
+			// Type
+			var typeSemanticTypeTag = new TextTag("syntax_type");
+			typeSemanticTypeTag.Foreground = "green";
+			typeSemanticTypeTag.ForegroundSet = true;
+			tagTable.Add(typeSemanticTypeTag);
+			this._TagsSemanticType.Add(SemanticType.Type, typeSemanticTypeTag);
+
+			// Identifier
+			var identifierSemanticTypeTag = new TextTag("syntax_identifier");
+			identifierSemanticTypeTag.Foreground = "cyan";
+			identifierSemanticTypeTag.ForegroundSet = true;
+			tagTable.Add(identifierSemanticTypeTag);
+			this._TagsSemanticType.Add(SemanticType.Identifier, identifierSemanticTypeTag);
+
+			// Constant
+			var constantSemanticTypeTag = new TextTag("syntax_constant");
+			constantSemanticTypeTag.Foreground = "pink";
+			constantSemanticTypeTag.ForegroundSet = true;
+			tagTable.Add(constantSemanticTypeTag);
+			this._TagsSemanticType.Add(SemanticType.Constant, constantSemanticTypeTag);
+
+			// Keyword
+			var keywordSemanticTypeTag = new TextTag("syntax_keyword");
+			keywordSemanticTypeTag.Foreground = "yellow";
+			keywordSemanticTypeTag.ForegroundSet = true;
+			tagTable.Add(keywordSemanticTypeTag);
+			this._TagsSemanticType.Add(SemanticType.Keyword, keywordSemanticTypeTag);
+
 
 			// Set up NodeView.
 			this.nodeviewNotes.NodeStore = new NodeStore(typeof(NotesElementTreeNode));
@@ -595,6 +628,13 @@ namespace CvnNote.Gui
 			if (object.ReferenceEquals(tree, null))
 				throw new ArgumentNullException("tree");
 
+			IList<ISemanticLocatable> syntaxElements = tree.SyntaxElements;
+			if (syntaxElements != null) {
+				foreach (ISemanticLocatable elem in syntaxElements) {
+					ColorizeSyntaxElement(elem);
+				}
+			}
+
 			var node = new NotesElementTreeNode(tree);
 
 			// Add node as child of the given parent, or as root note if none given.
@@ -622,6 +662,36 @@ namespace CvnNote.Gui
 					AddNotesTree(child, node);
 				}
 			}
+		}
+
+		protected void ColorizeSyntaxElement(ISemanticLocatable elem)
+		{
+			if (object.ReferenceEquals(elem, null))
+				throw new ArgumentNullException("elem");
+
+			Location loc = elem.Location;
+			if (object.ReferenceEquals(loc, null) || loc.StartLine < 1)
+				// No location information known; ignore.
+				return;
+
+			TextTag tag;
+			if (!this._TagsSemanticType.TryGetValue(elem.SemanticType, out tag))
+				// Syntax highlighting for this semantic type not known; ignore.
+				return;
+
+			TextBuffer buf = this.textviewText.Buffer;
+			TextIter start, end;
+			if (loc.StartCharacter < 1 && loc.EndCharacter < 1) {
+				// Line-wise
+				start = buf.GetIterAtLineOffset(loc.StartLine - 1, 0);
+				end = buf.GetIterAtLineOffset(loc.EndLine - 1 + 1, 0);
+			}
+			else {
+				// Character-wise
+				start = buf.GetIterAtLineOffset(loc.StartLine - 1, loc.StartCharacter - 1);
+				end = buf.GetIterAtLineOffset(loc.EndLine - 1, loc.EndCharacter - 1);
+			}
+			buf.ApplyTag(tag, start, end);
 		}
 
 		/// <summary>

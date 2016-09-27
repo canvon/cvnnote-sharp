@@ -485,17 +485,17 @@ namespace CvnNote
 					// Save category string with associated location and semantic information.
 					field = fields[0];
 					this.Category = new SemanticLocatableItem<string>(
-						this.StartLineNumber, 1, this.StartLineNumber, field.Length + 1,
+						this.StartLineNumber, 1, this.StartLineNumber, 1 + field.Length,
 						field, SemanticType.Type);
-					prevLen = prevLen + field.Length;
+					prevLen = prevLen + field.Length + 1;
 
 					// TODO: Further parse complement?
 					if (fields.Length >= 2 && !string.IsNullOrWhiteSpace(fields[1])) {
 						// Save complement string with associated location and semantic information.
 						field = fields[1];
 						this.Complement = new SemanticLocatableItem<string>(
-							this.StartLineNumber, 1 + prevLen + 1,
-							this.StartLineNumber, 1 + prevLen + 1 + field.Length + 1,
+							this.StartLineNumber, 1 + prevLen,
+							this.StartLineNumber, 1 + prevLen + field.Length,
 							field.Trim(), SemanticType.Identifier);
 					}
 					//prevLen = prevLen + 1 + field.Length;
